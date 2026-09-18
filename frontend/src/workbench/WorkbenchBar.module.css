@@ -1,0 +1,89 @@
+.bar {
+  display: flex;
+  align-items: stretch;
+  gap: var(--s5);
+  height: var(--topbar-h);
+  padding: 0 var(--s4);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  min-width: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex: none;
+}
+
+.name {
+  font-size: var(--t-dense);
+  font-weight: 500;
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--s1);
+  flex: 1;
+  min-width: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--s3);
+  color: var(--text-2);
+  font-size: var(--t-dense);
+  letter-spacing: var(--track-dense);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tabOn {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.rule {
+  align-self: center;
+  width: 1px;
+  height: 16px;
+  background: var(--line-strong);
+  margin: 0 var(--s1);
+}
+
+.readyDot {
+  width: 6px;
+  height: 6px;
+  background: var(--text);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  flex: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--text-2);
+  font-size: var(--t-dense);
+  white-space: nowrap;
+}
+
+.link:hover {
+  color: var(--text);
+}
