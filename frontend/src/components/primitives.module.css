@@ -1,0 +1,112 @@
+/* Field — the spec-sheet pair */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fieldValue {
+  font-size: var(--t-body);
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.fieldUnit {
+  font-size: var(--t-small);
+  color: var(--text-2);
+}
+
+/* CodeChip — neutral mono codes */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 5px;
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-2);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.chipStrong {
+  color: var(--text);
+}
+
+/* Panel — a region between rules, not a floating card */
+.panel {
+  border: 1px solid var(--line);
+  background: var(--surface-1);
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  min-height: 36px;
+  padding: 0 var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+
+.panelBody {
+  padding: var(--s4);
+}
+
+/* Registration marks — corner ticks on the one focal panel per view */
+.reg {
+  position: relative;
+}
+
+.reg::before,
+.reg::after,
+.regInner::before,
+.regInner::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--text);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.reg::before {
+  top: -5px;
+  left: -5px;
+  border-width: 1px 0 0 1px;
+}
+
+.reg::after {
+  top: -5px;
+  right: -5px;
+  border-width: 1px 1px 0 0;
+}
+
+.regInner::before {
+  bottom: -5px;
+  left: -5px;
+  border-width: 0 0 1px 1px;
+}
+
+.regInner::after {
+  bottom: -5px;
+  right: -5px;
+  border-width: 0 1px 1px 0;
+}
+
+
+/* Empty state */
+.empty {
+  padding: var(--s6) var(--s4);
+  color: var(--text-3);
+  font-size: var(--t-dense);
+}

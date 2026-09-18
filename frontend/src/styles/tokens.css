@@ -1,0 +1,109 @@
+/*
+ * Design tokens — docs/DESIGN.md is the spec, this file is the source of truth.
+ * scripts/check_contrast.py parses this file; keep one `--name: #hex;` per line.
+ *
+ * Dark is the operator default and does not follow the OS setting: a console
+ * should not change appearance because a laptop's OS did. Light ("projector")
+ * is an explicit choice, stamped as data-theme="light" on <html>.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* neutrals */
+  --bg: #010101;
+  --surface-1: #0a0b09;
+  --surface-2: #131511;
+  --surface-hover: #1c1f19;
+  --line: #23261f;
+  --line-strong: #474b40;
+  --text: #ffffff;
+  --text-2: #a3a79f;
+  --text-3: #737670;
+  --ink-normal: #6c6e6b;
+  --bone: #f1f0ea;
+  --on-bone: #010101;
+
+  /* reserved state colours — never used for anything else */
+  --p1-fill: #d42a1f;
+  --p1-on: #ffffff;
+  --p1-ink: #ff5a4f;
+  --p2-fill: #dff140;
+  --p2-on: #010101;
+  --p2-ink: #dff140;
+  --p3-ink: #a8b83a;
+  --dq-ink: #ffffff;
+  --act-fill: #f1f0ea;
+  --act-on: #010101;
+
+  /* charts (neutral only) */
+  --chart-line: #d9dcd4;
+  --chart-band: #2a2e26;
+  --chart-grid: #181a15;
+
+  /* type */
+  --font-sans: "Helvetica Now Display", "Helvetica Neue", Helvetica, "Geist Variable", Arial, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --t-micro: 11px;
+  --t-small: 12px;
+  --t-dense: 13px;
+  --t-body: 14px;
+  --t-title: 20px;
+  --t-id: 28px;
+  --t-figure: 40px;
+  --t-readout: 64px;
+
+  --track-micro: 0.04em;
+  --track-dense: -0.01em;
+  --track-title: -0.02em;
+  --track-id: -0.03em;
+  --track-display: -0.04em;
+
+  /* space */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  /* frame */
+  --topbar-h: 48px;
+  --rail-w: 380px;
+  --focus: 0 0 0 1px var(--bg), 0 0 0 2px var(--text);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #e6e4da;
+  --surface-1: #eeece4;
+  --surface-2: #f5f4ef;
+  --surface-hover: #fbfaf7;
+  --line: #d2cfc3;
+  --line-strong: #a9a799;
+  --text: #010101;
+  --text-2: #505544;
+  --text-3: #62645d;
+  --ink-normal: #7a7c72;
+  --bone: #010101;
+  --on-bone: #f1f0ea;
+
+  --p1-fill: #d42a1f;
+  --p1-on: #ffffff;
+  --p1-ink: #b8241a;
+  --p2-fill: #dff140;
+  --p2-on: #010101;
+  --p2-ink: #5a6300;
+  --p3-ink: #5f6a12;
+  --dq-ink: #010101;
+  --act-fill: #010101;
+  --act-on: #f1f0ea;
+
+  --chart-line: #2b2e26;
+  --chart-band: #d8d6cb;
+  --chart-grid: #e0ded4;
+}
