@@ -1,0 +1,1527 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Train condition monitoring",
+    "description": "Workbench API for NEBULA X PS3: upload a subsystem's data, see what the checks and the model make of it, and download the prediction files.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/ps3/subsystems": {
+      "get": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Subsystems",
+        "operationId": "subsystems_api_ps3_subsystems_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SubsystemInfo"
+                  },
+                  "type": "array",
+                  "title": "Response Subsystems Api Ps3 Subsystems Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/subsystems/{subsystem}": {
+      "get": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Subsystem",
+        "operationId": "subsystem_api_ps3_subsystems__subsystem__get",
+        "parameters": [
+          {
+            "name": "subsystem",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "door",
+                "acv",
+                "rail",
+                "shm"
+              ],
+              "type": "string",
+              "title": "Subsystem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubsystemInfo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/runs": {
+      "post": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Create Run",
+        "operationId": "create_run_api_ps3_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewRun"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Get Run",
+        "operationId": "get_run_api_ps3_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/runs/{run_id}/files": {
+      "post": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Upload",
+        "description": "Check one uploaded file, run the subsystem's model on it, and add it to the run.",
+        "operationId": "upload_api_ps3_runs__run_id__files_post",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_api_ps3_runs__run_id__files_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/runs/{run_id}/{csv_name}": {
+      "get": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Download Csv",
+        "operationId": "download_csv_api_ps3_runs__run_id___csv_name__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "csv_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Csv Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/csv": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/submission": {
+      "get": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Get Submission",
+        "operationId": "get_submission_api_ps3_submission_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Submission"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ps3/submission/predictions.zip": {
+      "get": {
+        "tags": [
+          "workbench"
+        ],
+        "summary": "Download Zip",
+        "operationId": "download_zip_api_ps3_submission_predictions_zip_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/zip": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AcvCar": {
+        "properties": {
+          "car": {
+            "type": "string",
+            "title": "Car"
+          },
+          "parameters": {
+            "type": "integer",
+            "title": "Parameters"
+          },
+          "coolingShare": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coolingshare"
+          },
+          "indoorMean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indoormean"
+          },
+          "gapWhileCooling": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gapwhilecooling"
+          },
+          "indoor": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Indoor"
+          },
+          "setpoint": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Setpoint"
+          }
+        },
+        "type": "object",
+        "required": [
+          "car",
+          "parameters",
+          "coolingShare",
+          "indoorMean",
+          "gapWhileCooling",
+          "indoor",
+          "setpoint"
+        ],
+        "title": "AcvCar"
+      },
+      "AcvView": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "acv",
+            "title": "Kind"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "samplePeriodS": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sampleperiods"
+          },
+          "trainNumber": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainnumber"
+          },
+          "time": {
+            "items": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "type": "array",
+            "title": "Time"
+          },
+          "cars": {
+            "items": {
+              "$ref": "#/components/schemas/AcvCar"
+            },
+            "type": "array",
+            "title": "Cars"
+          },
+          "rankedCars": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rankedcars"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "rows",
+          "start",
+          "end",
+          "samplePeriodS",
+          "trainNumber",
+          "time",
+          "cars",
+          "rankedCars"
+        ],
+        "title": "AcvView"
+      },
+      "Body_upload_api_ps3_runs__run_id__files_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_api_ps3_runs__run_id__files_post"
+      },
+      "Check": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail"
+            ],
+            "title": "State"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "state"
+        ],
+        "title": "Check"
+      },
+      "DoorCycle": {
+        "properties": {
+          "index": {
+            "type": "integer",
+            "title": "Index"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "startNative": {
+            "type": "string",
+            "title": "Startnative"
+          },
+          "endNative": {
+            "type": "string",
+            "title": "Endnative"
+          },
+          "durationS": {
+            "type": "number",
+            "title": "Durations"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "Close"
+            ],
+            "title": "Operation"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Normal",
+                  "Abnormal resistance"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prediction"
+          },
+          "windowCurrent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Windowcurrent"
+          },
+          "threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold"
+          },
+          "current": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Current"
+          },
+          "position": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Position"
+          },
+          "profile": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Profile"
+          }
+        },
+        "type": "object",
+        "required": [
+          "index",
+          "start",
+          "end",
+          "startNative",
+          "endNative",
+          "durationS",
+          "operation",
+          "prediction",
+          "windowCurrent",
+          "threshold",
+          "current",
+          "position",
+          "profile"
+        ],
+        "title": "DoorCycle"
+      },
+      "DoorReference": {
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "Close"
+            ],
+            "title": "Operation"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Normal",
+              "Abnormal resistance"
+            ],
+            "title": "Status"
+          },
+          "profile": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Profile"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation",
+          "status",
+          "profile"
+        ],
+        "title": "DoorReference"
+      },
+      "DoorView": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "door",
+            "title": "Kind"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "samplePeriodMs": {
+            "type": "integer",
+            "title": "Sampleperiodms"
+          },
+          "cycles": {
+            "items": {
+              "$ref": "#/components/schemas/DoorCycle"
+            },
+            "type": "array",
+            "title": "Cycles"
+          },
+          "windows": {
+            "additionalProperties": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Windows"
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/DoorReference"
+            },
+            "type": "array",
+            "title": "References"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "rows",
+          "start",
+          "end",
+          "samplePeriodMs",
+          "cycles",
+          "windows",
+          "references"
+        ],
+        "title": "DoorView"
+      },
+      "FileResult": {
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "title": "Sizebytes"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "looksLike": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "door",
+                  "acv",
+                  "rail",
+                  "shm"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lookslike"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/Check"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "prediction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prediction"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "view": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DoorView"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AcvView"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RailView"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ShmView"
+                  }
+                ],
+                "discriminator": {
+                  "propertyName": "kind",
+                  "mapping": {
+                    "acv": "#/components/schemas/AcvView",
+                    "door": "#/components/schemas/DoorView",
+                    "rail": "#/components/schemas/RailView",
+                    "shm": "#/components/schemas/ShmView"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fileName",
+          "sizeBytes",
+          "ok",
+          "looksLike",
+          "checks",
+          "prediction",
+          "rows",
+          "view"
+        ],
+        "title": "FileResult"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          }
+        },
+        "type": "object",
+        "title": "Health"
+      },
+      "ModelCard": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "trainedOn": {
+            "type": "string",
+            "title": "Trainedon"
+          },
+          "validation": {
+            "type": "string",
+            "title": "Validation"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Parameters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "method",
+          "trainedOn",
+          "validation",
+          "parameters"
+        ],
+        "title": "ModelCard"
+      },
+      "NewRun": {
+        "properties": {
+          "subsystem": {
+            "type": "string",
+            "enum": [
+              "door",
+              "acv",
+              "rail",
+              "shm"
+            ],
+            "title": "Subsystem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subsystem"
+        ],
+        "title": "NewRun"
+      },
+      "RailChannel": {
+        "properties": {
+          "car": {
+            "type": "integer",
+            "title": "Car"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "Side I",
+              "Side II"
+            ],
+            "title": "Side"
+          },
+          "vibration": {
+            "type": "number",
+            "title": "Vibration"
+          },
+          "shock": {
+            "type": "number",
+            "title": "Shock"
+          }
+        },
+        "type": "object",
+        "required": [
+          "car",
+          "position",
+          "side",
+          "vibration",
+          "shock"
+        ],
+        "title": "RailChannel"
+      },
+      "RailView": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "rail",
+            "title": "Kind"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "durationS": {
+            "type": "number",
+            "title": "Durations"
+          },
+          "speedKmh": {
+            "type": "number",
+            "title": "Speedkmh"
+          },
+          "channels": {
+            "items": {
+              "$ref": "#/components/schemas/RailChannel"
+            },
+            "type": "array",
+            "title": "Channels"
+          },
+          "sideVibration": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Sidevibration"
+          },
+          "sideShock": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Sideshock"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "rows",
+          "durationS",
+          "speedKmh",
+          "channels",
+          "sideVibration",
+          "sideShock"
+        ],
+        "title": "RailView"
+      },
+      "Run": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "subsystem": {
+            "type": "string",
+            "enum": [
+              "door",
+              "acv",
+              "rail",
+              "shm"
+            ],
+            "title": "Subsystem"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "empty",
+              "ready",
+              "pending",
+              "invalid"
+            ],
+            "title": "Status"
+          },
+          "files": {
+            "type": "integer",
+            "title": "Files"
+          },
+          "validFiles": {
+            "type": "integer",
+            "title": "Validfiles"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "csvName": {
+            "type": "string",
+            "title": "Csvname"
+          },
+          "csvUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csvurl"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/FileResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "subsystem",
+          "createdAt",
+          "status",
+          "files",
+          "validFiles",
+          "rows",
+          "summary",
+          "csvName",
+          "csvUrl",
+          "results"
+        ],
+        "title": "Run"
+      },
+      "RunSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "subsystem": {
+            "type": "string",
+            "enum": [
+              "door",
+              "acv",
+              "rail",
+              "shm"
+            ],
+            "title": "Subsystem"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "empty",
+              "ready",
+              "pending",
+              "invalid"
+            ],
+            "title": "Status"
+          },
+          "files": {
+            "type": "integer",
+            "title": "Files"
+          },
+          "validFiles": {
+            "type": "integer",
+            "title": "Validfiles"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "csvName": {
+            "type": "string",
+            "title": "Csvname"
+          },
+          "csvUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csvurl"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "subsystem",
+          "createdAt",
+          "status",
+          "files",
+          "validFiles",
+          "rows",
+          "summary",
+          "csvName",
+          "csvUrl"
+        ],
+        "title": "RunSummary"
+      },
+      "ShmView": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "shm",
+            "title": "Kind"
+          },
+          "samples": {
+            "type": "integer",
+            "title": "Samples"
+          },
+          "minimum": {
+            "type": "number",
+            "title": "Minimum"
+          },
+          "maximum": {
+            "type": "number",
+            "title": "Maximum"
+          },
+          "mean": {
+            "type": "number",
+            "title": "Mean"
+          },
+          "std": {
+            "type": "number",
+            "title": "Std"
+          },
+          "envelopeMin": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Envelopemin"
+          },
+          "envelopeMax": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Envelopemax"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "samples",
+          "minimum",
+          "maximum",
+          "mean",
+          "std",
+          "envelopeMin",
+          "envelopeMax"
+        ],
+        "title": "ShmView"
+      },
+      "Submission": {
+        "properties": {
+          "zipName": {
+            "type": "string",
+            "title": "Zipname"
+          },
+          "ready": {
+            "type": "integer",
+            "title": "Ready"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SubmissionItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "zipUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zipurl"
+          }
+        },
+        "type": "object",
+        "required": [
+          "zipName",
+          "ready",
+          "items",
+          "zipUrl"
+        ],
+        "title": "Submission"
+      },
+      "SubmissionItem": {
+        "properties": {
+          "subsystem": {
+            "type": "string",
+            "enum": [
+              "door",
+              "acv",
+              "rail",
+              "shm"
+            ],
+            "title": "Subsystem"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "outputFile": {
+            "type": "string",
+            "title": "Outputfile"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "empty",
+                  "ready",
+                  "pending",
+                  "invalid"
+                ]
+              },
+              {
+                "type": "string",
+                "const": "none"
+              }
+            ],
+            "title": "Status"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "included": {
+            "type": "boolean",
+            "title": "Included"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subsystem",
+          "name",
+          "outputFile",
+          "status",
+          "run",
+          "included",
+          "note"
+        ],
+        "title": "SubmissionItem"
+      },
+      "SubsystemInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "door",
+              "acv",
+              "rail",
+              "shm"
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "task": {
+            "type": "string",
+            "title": "Task"
+          },
+          "inputHint": {
+            "type": "string",
+            "title": "Inputhint"
+          },
+          "accepts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Accepts"
+          },
+          "multiple": {
+            "type": "boolean",
+            "title": "Multiple"
+          },
+          "outputFile": {
+            "type": "string",
+            "title": "Outputfile"
+          },
+          "outputColumns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Outputcolumns"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Labels"
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "pending"
+            ],
+            "title": "Status"
+          },
+          "statusNote": {
+            "type": "string",
+            "title": "Statusnote"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelCard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latestRun": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "question",
+          "task",
+          "inputHint",
+          "accepts",
+          "multiple",
+          "outputFile",
+          "outputColumns",
+          "labels",
+          "metric",
+          "status",
+          "statusNote",
+          "model",
+          "latestRun"
+        ],
+        "title": "SubsystemInfo"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
