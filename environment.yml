@@ -1,0 +1,49 @@
+# Conda environment, created inside the repo:
+#   conda env create -f environment.yml -p ./train-fault-detection
+#   conda activate ./train-fault-detection
+#   pip install -e . --no-deps --no-build-isolation
+name: train-fault-detection
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+
+  # Core (numpy 2.5 deprecates timedelta handling that pandas 2.3 still uses)
+  - numpy<2.5
+  - pandas>=2.2,<3
+  - scipy
+
+  # IO
+  - pyarrow
+  - openpyxl
+
+  # Modelling
+  - scikit-learn
+  - lightgbm
+  - stumpy
+  - rainflow
+
+  # Tracking
+  - mlflow
+
+  # App backend
+  - fastapi
+  - uvicorn-standard
+  - python-multipart
+  - pydantic
+  - httpx
+
+  # App frontend (Vite 8 needs Node 20.19+)
+  - nodejs=22
+
+  # Notebooks
+  - jupyterlab
+  - ipykernel
+  - nbconvert
+  - matplotlib
+
+  # Dev
+  - pytest
+  - pip
+  - setuptools
