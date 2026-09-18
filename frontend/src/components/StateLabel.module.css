@@ -1,0 +1,65 @@
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: var(--t-micro);
+  font-weight: 500;
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* P1 — reverse video */
+.P1 {
+  background: var(--p1-fill);
+  color: var(--p1-on);
+}
+
+/* P2 — thin box */
+.P2 {
+  border: 1px solid var(--p2-ink);
+  color: var(--p2-ink);
+}
+
+/* P3 — brackets, no box */
+.P3 {
+  color: var(--p3-ink);
+  padding: 0 2px;
+}
+
+.P3::before {
+  content: "[";
+  margin-right: 1px;
+}
+
+.P3::after {
+  content: "]";
+  margin-left: 1px;
+}
+
+/* data quality — dashed box, no hue */
+.DQ {
+  border: 1px dashed var(--dq-ink);
+  color: var(--dq-ink);
+}
+
+/* action required — inverse pill, the one rounded shape in the system */
+.ACT {
+  background: var(--act-fill);
+  color: var(--act-on);
+  border-radius: 999px;
+  padding: 0 8px;
+}
+
+.normal {
+  color: var(--text-3);
+  padding: 0;
+}
+
+.compact {
+  height: 18px;
+  padding: 0 4px;
+}
