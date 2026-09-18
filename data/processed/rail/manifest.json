@@ -1,0 +1,197 @@
+{
+  "subsystem": "Rail_Corrugation",
+  "settings": {
+    "seed": 2026,
+    "fs": 10000,
+    "teeth": 90,
+    "wheel_diameter_m": 0.85,
+    "speed_rule": "rising pulse edges per second / teeth * pi * diameter",
+    "conditioning": "channel mean removed; no filtering",
+    "welch": {
+      "nperseg": 1024,
+      "noverlap": 512,
+      "window": "hann"
+    },
+    "frequency_bands_hz": {
+      "f0_100": [
+        0,
+        100
+      ],
+      "f100_500": [
+        100,
+        500
+      ],
+      "f500_1500": [
+        500,
+        1500
+      ],
+      "f1500_5000": [
+        1500,
+        5001
+      ]
+    },
+    "wavelength_bands_m": {
+      "w10_20mm": [
+        0.01,
+        0.02
+      ],
+      "w20_40mm": [
+        0.02,
+        0.04
+      ],
+      "w40_80mm": [
+        0.04,
+        0.08
+      ],
+      "w80_160mm": [
+        0.08,
+        0.16
+      ],
+      "w160_320mm": [
+        0.16,
+        0.32
+      ],
+      "w320_640mm": [
+        0.32,
+        0.64
+      ]
+    },
+    "min_bins": 2,
+    "axle_pairs": "(1,2), (3,4), (5,6), (7,8)",
+    "folds": "StratifiedGroupKFold(4) grouped by acceleration fingerprint"
+  },
+  "feature_groups": {
+    "speed": [
+      "speed_kmh"
+    ],
+    "amplitude": [
+      "shock_I_ac_rms",
+      "shock_II_ac_rms",
+      "vibration_I_ac_rms",
+      "vibration_II_ac_rms",
+      "shock_I_peak",
+      "shock_II_peak",
+      "vibration_I_peak",
+      "vibration_II_peak",
+      "shock_I_max_rms",
+      "shock_II_max_rms",
+      "vibration_I_max_rms",
+      "vibration_II_max_rms"
+    ],
+    "waveform shape": [
+      "shock_I_crest",
+      "shock_II_crest",
+      "vibration_I_crest",
+      "vibration_II_crest",
+      "shock_I_kurtosis",
+      "shock_II_kurtosis",
+      "vibration_I_kurtosis",
+      "vibration_II_kurtosis",
+      "shock_I_skewness",
+      "shock_II_skewness",
+      "vibration_I_skewness",
+      "vibration_II_skewness"
+    ],
+    "spectral shape": [
+      "shock_I_spectral_centroid",
+      "shock_II_spectral_centroid",
+      "vibration_I_spectral_centroid",
+      "vibration_II_spectral_centroid",
+      "shock_I_f0_100_share",
+      "shock_II_f0_100_share",
+      "vibration_I_f0_100_share",
+      "vibration_II_f0_100_share",
+      "shock_I_f100_500_share",
+      "shock_II_f100_500_share",
+      "vibration_I_f100_500_share",
+      "vibration_II_f100_500_share",
+      "shock_I_f500_1500_share",
+      "shock_II_f500_1500_share",
+      "vibration_I_f500_1500_share",
+      "vibration_II_f500_1500_share",
+      "shock_I_f1500_5000_share",
+      "shock_II_f1500_5000_share",
+      "vibration_I_f1500_5000_share",
+      "vibration_II_f1500_5000_share"
+    ],
+    "wavelength power": [
+      "shock_I_w10_20mm_logpow",
+      "shock_II_w10_20mm_logpow",
+      "vibration_I_w10_20mm_logpow",
+      "vibration_II_w10_20mm_logpow",
+      "shock_I_w20_40mm_logpow",
+      "shock_II_w20_40mm_logpow",
+      "vibration_I_w20_40mm_logpow",
+      "vibration_II_w20_40mm_logpow",
+      "shock_I_w40_80mm_logpow",
+      "shock_II_w40_80mm_logpow",
+      "vibration_I_w40_80mm_logpow",
+      "vibration_II_w40_80mm_logpow",
+      "shock_I_w80_160mm_logpow",
+      "shock_II_w80_160mm_logpow",
+      "vibration_I_w80_160mm_logpow",
+      "vibration_II_w80_160mm_logpow",
+      "shock_I_w160_320mm_logpow",
+      "shock_II_w160_320mm_logpow",
+      "vibration_I_w160_320mm_logpow",
+      "vibration_II_w160_320mm_logpow",
+      "shock_I_w320_640mm_logpow",
+      "shock_II_w320_640mm_logpow",
+      "vibration_I_w320_640mm_logpow",
+      "vibration_II_w320_640mm_logpow"
+    ],
+    "side contrast": [
+      "shock_contrast_log_rms_median",
+      "vibration_contrast_log_rms_median",
+      "shock_contrast_kurtosis_median",
+      "vibration_contrast_kurtosis_median",
+      "shock_contrast_w10_20mm_logpow_median",
+      "vibration_contrast_w10_20mm_logpow_median",
+      "shock_contrast_w20_40mm_logpow_median",
+      "vibration_contrast_w20_40mm_logpow_median",
+      "shock_contrast_w40_80mm_logpow_median",
+      "vibration_contrast_w40_80mm_logpow_median",
+      "shock_contrast_w80_160mm_logpow_median",
+      "vibration_contrast_w80_160mm_logpow_median",
+      "shock_contrast_w160_320mm_logpow_median",
+      "vibration_contrast_w160_320mm_logpow_median",
+      "shock_contrast_w320_640mm_logpow_median",
+      "vibration_contrast_w320_640mm_logpow_median",
+      "shock_contrast_log_rms_pos_share",
+      "vibration_contrast_log_rms_pos_share",
+      "shock_contrast_kurtosis_pos_share",
+      "vibration_contrast_kurtosis_pos_share",
+      "shock_contrast_w10_20mm_logpow_pos_share",
+      "vibration_contrast_w10_20mm_logpow_pos_share",
+      "shock_contrast_w20_40mm_logpow_pos_share",
+      "vibration_contrast_w20_40mm_logpow_pos_share",
+      "shock_contrast_w40_80mm_logpow_pos_share",
+      "vibration_contrast_w40_80mm_logpow_pos_share",
+      "shock_contrast_w80_160mm_logpow_pos_share",
+      "vibration_contrast_w80_160mm_logpow_pos_share",
+      "shock_contrast_w160_320mm_logpow_pos_share",
+      "vibration_contrast_w160_320mm_logpow_pos_share",
+      "shock_contrast_w320_640mm_logpow_pos_share",
+      "vibration_contrast_w320_640mm_logpow_pos_share"
+    ]
+  },
+  "outputs": {
+    "rail_files.parquet": [
+      340,
+      20
+    ],
+    "rail_channel_features.parquet": [
+      43520,
+      27
+    ],
+    "rail_features.parquet": [
+      340,
+      106
+    ],
+    "rail_psd.npz": [
+      340,
+      128,
+      513
+    ]
+  }
+}
