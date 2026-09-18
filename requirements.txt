@@ -9,14 +9,16 @@ stumpy>=1.13
 # Modelling
 scikit-learn>=1.4
 lightgbm>=4.3
+tensorflow>=2.21
 rainflow>=3.0
 
 # IO
 pyarrow>=15.0
 openpyxl>=3.1
 
-# Tracking
+# Tracking (shared server on DagsHub)
 mlflow>=2.12
+dagshub>=0.7
 
 # Dashboard backend
 fastapi>=0.115

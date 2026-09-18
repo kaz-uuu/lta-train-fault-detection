@@ -21,6 +21,8 @@ dependencies:
   # Modelling
   - scikit-learn
   - lightgbm
+  # conda-forge build: the PyPI wheel crashes alongside conda-forge pyarrow
+  - tensorflow>=2.21
   - stumpy
   - rainflow
 
@@ -47,3 +49,7 @@ dependencies:
   - pytest
   - pip
   - setuptools
+
+  # Shared MLflow tracking on DagsHub (pip only)
+  - pip:
+      - dagshub>=0.7
