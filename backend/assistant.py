@@ -77,12 +77,21 @@ class VertexAgent:
         )
         contents = [types.Content(role=h["role"], parts=[types.Part(text=h["text"])]) for h in history[-12:]]
         contents.append(types.Content(role="user", parts=[types.Part(text=f"Mode: {message.mode}\n{message.text}")]))
+        retrieved = set()
         with genai.Client(vertexai=True, project=project, location=os.getenv("GOOGLE_CLOUD_LOCATION", "global"),
                           http_options=types.HttpOptions(timeout=20000)) as client:
             for _ in range(5):
+                config = dict(system_instruction=instruction, tools=[tool], max_output_tokens=1800,
+                              automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True))
+                # Once the required evidence has actually been retrieved, constrain the
+                # final investigation response to the allowlisted API contract. This avoids
+                # harmless Gemini formatting variations becoming a production 502.
+                if message.mode == "investigate" and {
+                    "predictions", "sensor_readings", "maintenance_guidelines"
+                }.issubset(retrieved):
+                    config.update(response_mime_type="application/json", response_schema=Recommendation)
                 response = client.models.generate_content(model=os.getenv("TFD_GEMINI_MODEL", "gemini-2.5-flash"), contents=contents,
-                    config=types.GenerateContentConfig(system_instruction=instruction, tools=[tool], max_output_tokens=1800,
-                        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)))
+                    config=types.GenerateContentConfig(**config))
                 if not response.function_calls:
                     return response.text or "No response was returned."
                 contents.append(response.candidates[0].content)
@@ -91,6 +100,7 @@ class VertexAgent:
                     if call.name not in names or call.args:
                         raise ValueError("Unsupported tool request")
                     parts.append(types.Part.from_function_response(name=call.name, response=retrieve(call.name)))
+                    retrieved.add(call.name)
                 contents.append(types.Content(role="tool", parts=parts))
         raise RuntimeError("Tool round limit reached")
 
