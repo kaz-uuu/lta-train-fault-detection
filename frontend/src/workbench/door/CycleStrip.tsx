@@ -57,8 +57,17 @@ export function CycleStrip({
         </span>
         <span className={`mono ${tip ? "" : "faint"}`}>
           {tip
-            ? `#${tip.index + 1} · ${fmtTime(tip.start)} · ${tip.operation === "Open" ? "opening" : "closing"} · ${fmtSeconds(tip.durationS)} · ${fmtNum(tip.windowCurrent)} mA vs ${fmtNum(tip.threshold)} mA · ${tip.prediction ?? "not labelled"}`
-            : "Hover a cell for details"}
+            ? [
+                `#${tip.index + 1}`,
+                fmtTime(tip.start),
+                tip.operation === "Open" ? "opening" : "closing",
+                fmtSeconds(tip.durationS),
+                ...(tip.windowCurrent != null && tip.threshold != null
+                  ? [`${fmtNum(tip.windowCurrent)} mA vs ${fmtNum(tip.threshold)} mA`]
+                  : []),
+                tip.prediction ?? "not labelled",
+              ].join(" · ")
+            : "Hover over a movement for details"}
         </span>
       </div>
     </div>

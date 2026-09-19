@@ -199,7 +199,7 @@
   white-space: nowrap;
 }
 
-.submitStrip {
+.predictionsStrip {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -208,13 +208,13 @@
   border: 1px solid var(--line);
 }
 
-.submitText {
+.predictionsText {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.submitTitle {
+.predictionsTitle {
   font-size: var(--t-title);
   letter-spacing: var(--track-title);
 }
@@ -898,9 +898,9 @@
   background: var(--text-2);
 }
 
-/* ---- submission -------------------------------------------------------------- */
+/* ---- predictions ------------------------------------------------------------- */
 
-.submitGrid {
+.predictionsGrid {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
   gap: var(--s4);
@@ -931,29 +931,20 @@
   border-bottom: 1px solid var(--line);
 }
 
-.handIn {
+.formats {
+  list-style: none;
   margin: 0;
-  padding: 0 0 0 1.4em;
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s3) var(--s6);
+  gap: var(--s4) var(--s6);
   font-size: var(--t-dense);
 }
 
-.handIn li::marker {
-  font-family: var(--font-mono);
-  color: var(--text-3);
-}
-
-.handIn li {
-  padding-left: var(--s1);
-}
-
-.handIn li > span {
-  display: block;
-}
-
-.handInTitle {
-  font-weight: 500;
-  margin-bottom: 2px;
+.formats li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
 }

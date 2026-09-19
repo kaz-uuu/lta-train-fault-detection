@@ -18,14 +18,14 @@ function Preview({ result }: { result: FileResult }) {
     case "shm":
       return <ShmPreview view={result.view} />;
     default:
-      return <Empty>No preview for this file.</Empty>;
+      return <Empty>No preview is available for this file.</Empty>;
   }
 }
 
 function ResultCell({ result, ready }: { result: FileResult; ready: boolean }) {
-  if (!result.ok) return <span className={w.bad}>Not used</span>;
+  if (!result.ok) return <span className={w.bad}>Excluded</span>;
   if (result.prediction) return <span className="mono">{result.prediction}</span>;
-  return <span className="faint">{ready ? "—" : "Model pending"}</span>;
+  return <span className="faint">{ready ? "—" : "No model"}</span>;
 }
 
 /** Batch view for file-per-prediction subsystems: one row per file, then the selected file in detail. */
@@ -40,8 +40,8 @@ export function FileResults({ run, info }: { run: Run; info: SubsystemInfo }) {
     <div className={w.stack}>
       {!ready && (
         <Note>
-          Files are checked and previewed now. {info.name} predictions need the model, which is not ready yet, so
-          this batch is left out of predictions.zip for the moment.
+          Files are validated and previewed, but no {info.name} model is deployed, so this batch has no predictions
+          and is not included in predictions.zip.
         </Note>
       )}
       <div className={w.batchGrid}>
@@ -85,7 +85,7 @@ export function FileResults({ run, info }: { run: Run; info: SubsystemInfo }) {
               {selected.ok ? (
                 <Preview result={selected} />
               ) : (
-                <Empty>This file did not pass the checks, so it is not used.</Empty>
+                <Empty>This file failed validation and is excluded from the predictions.</Empty>
               )}
             </div>
           </Panel>

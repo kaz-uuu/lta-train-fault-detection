@@ -50,7 +50,6 @@ function About({ info }: { info: SubsystemInfo }) {
         <Field label="Output file" mono>
           {info.outputFile}
         </Field>
-        <Field label="Scored by">{info.metric}</Field>
         <div className={w.aboutWide}>
           <Field label="Columns">
             <span className={w.chips}>
@@ -73,7 +72,8 @@ export function DownloadButton({ run, csvName }: { run: Run | undefined; csvName
       </a>
     );
   }
-  const why = !run || run.files === 0 ? "Upload data first." : "Predictions need a ready model and a file that passed the checks.";
+  const why =
+    !run || run.files === 0 ? "Upload data first." : "Requires a deployed model and at least one file that passed validation.";
   return (
     <button className="btn btn--primary" disabled title={why}>
       Download {csvName}
@@ -92,7 +92,7 @@ function Workspace({ id }: { id: SubsystemId }) {
   const stale = runError instanceof ApiError && runError.status === 404;
   const uploads = useUploader(id, stale ? undefined : runId, setRun);
 
-  if (error) return <Empty>The workbench service is not reachable. Start the API and reload.</Empty>;
+  if (error) return <Empty>Cannot reach the prediction service. Check that the API is running, then reload.</Empty>;
   if (!info) return <Empty>Loading…</Empty>;
 
   const startOver = () => {
@@ -129,7 +129,7 @@ function Workspace({ id }: { id: SubsystemId }) {
       </header>
 
       <div className={w.wsTop}>
-        <Panel title={info.multiple ? "1 · Upload files" : "1 · Upload the file"} focal>
+        <Panel title="1 · Upload data" focal>
           <div className={w.uploadBody}>
             <Dropzone accepts={info.accepts} multiple={info.multiple} hint={info.inputHint} onFiles={uploads.add} />
             <UploadQueue queue={uploads.queue} />
@@ -141,7 +141,7 @@ function Workspace({ id }: { id: SubsystemId }) {
             )}
           </div>
         </Panel>
-        <Panel title="How it works">
+        <Panel title="Model">
           <About info={info} />
         </Panel>
       </div>
@@ -153,15 +153,15 @@ function Workspace({ id }: { id: SubsystemId }) {
           </h2>
           {hasFiles && (
             <span className="dim">
-              {run!.validFiles} of {run!.files} file{run!.files === 1 ? "" : "s"} passed the checks
+              {run!.validFiles} of {run!.files} file{run!.files === 1 ? "" : "s"} passed validation
             </span>
           )}
         </div>
         {runError ? (
-          <Empty>This batch is no longer on the server. Upload the data again.</Empty>
+          <Empty>This batch is no longer available on the server. Upload the data again.</Empty>
         ) : !hasFiles ? (
           <Empty>
-            {uploads.busy ? "Checking the upload…" : `Upload ${info.multiple ? "files" : "a file"} to see the results here.`}
+            {uploads.busy ? "Validating upload…" : `Results appear here once ${info.multiple ? "files are" : "a file is"} uploaded.`}
           </Empty>
         ) : id === "door" ? (
           <DoorResults run={run!} />
@@ -177,15 +177,15 @@ function Workspace({ id }: { id: SubsystemId }) {
           </h2>
           <span className="dim">
             {run?.csvUrl
-              ? `${fmtNum(run.rows)} prediction rows in the brief's format. The same file goes into predictions.zip.`
+              ? `${fmtNum(run.rows)} prediction rows. This file is also included in predictions.zip.`
               : info.status === "ready"
-                ? "The predictions file appears once a file passes the checks."
-                : "Nothing to download until this subsystem's model is ready."}
+                ? "Available once a file passes validation."
+                : "Available once a model is deployed for this subsystem."}
           </span>
         </div>
         <div className={w.wsActions}>
-          <Link to="/submission" className="btn">
-            Go to submission
+          <Link to="/predictions" className="btn">
+            All predictions
           </Link>
           <DownloadButton run={run} csvName={info.outputFile} />
         </div>

@@ -8,7 +8,7 @@ import w from "../workbench.module.css";
 export function ShmPreview({ view }: { view: ShmView }) {
   return (
     <div className={w.stack}>
-      <Note>This is a preview of the uploaded stress recording, not a prediction. The estimated fatigue damage appears here once the model is added.</Note>
+      <Note>Summary of the dynamic-stress signal. The estimated cumulative fatigue damage is listed under Prediction.</Note>
       <Tiles
         items={[
           { label: "Samples", value: fmtNum(view.samples) },

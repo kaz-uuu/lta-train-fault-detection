@@ -83,12 +83,12 @@ export function DoorResults({ run }: { run: Run }) {
   const [picked, setPicked] = useState<number | null>(null);
   const selected = picked ?? firstAbnormal;
 
-  if (!result) return <Empty>No file in this run.</Empty>;
+  if (!result) return <Empty>No file in this batch.</Empty>;
   if (!result.ok || !view) {
     return (
       <div className={w.stack}>
         <FileChecks result={result} />
-        <Empty>The file did not pass the checks, so it was not labelled. Fix the file or choose another.</Empty>
+        <Empty>The log failed validation and was not analysed. Correct the file or upload a different log.</Empty>
       </div>
     );
   }
@@ -116,14 +116,14 @@ export function DoorResults({ run }: { run: Run }) {
           },
           { label: "Normal", value: fmtNum(cycles.length - abnormal) },
           {
-            label: "Log covered",
+            label: "Log duration",
             value: fmtSeconds((new Date(view.end).getTime() - new Date(view.start).getTime()) / 1000),
-            note: `${fmtNum(view.rows)} rows, one every ${view.samplePeriodMs} ms`,
+            note: `${fmtNum(view.rows)} rows at ${view.samplePeriodMs} ms intervals`,
           },
         ]}
       />
 
-      <Panel title="Every movement, in log order" aside={<span className="faint">Select one to see why it got its label</span>}>
+      <Panel title="Movement timeline" aside={<span className="faint">Select a movement to inspect it</span>}>
         <CycleStrip cycles={cycles} selected={selected} onSelect={setPicked} />
       </Panel>
 
@@ -141,7 +141,7 @@ export function DoorResults({ run }: { run: Run }) {
           {shown.length ? (
             <CycleTable cycles={shown} selected={selected} onSelect={setPicked} />
           ) : (
-            <Empty>No movement was labelled Abnormal resistance.</Empty>
+            <Empty>No movements with abnormal resistance.</Empty>
           )}
         </Panel>
         <Panel title={current ? `Movement ${current.index + 1}` : "Movement"} focal>

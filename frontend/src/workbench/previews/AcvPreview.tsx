@@ -6,7 +6,7 @@ import w from "../workbench.module.css";
 
 const pct = (x: number | null | undefined) => (x == null ? "—" : `${Math.round(x * 100)}%`);
 
-/** Per-car temperatures as recorded. Descriptive only: it ranks nothing. */
+/** Per-car temperatures as recorded. Descriptive only: the ranking comes from the model. */
 export function AcvPreview({ view }: { view: AcvView }) {
   const temps = view.cars.flatMap((c) => [...c.indoor, ...c.setpoint]).filter((v): v is number => v != null);
   const domain: [number, number] = temps.length ? [Math.min(...temps), Math.max(...temps)] : [0, 1];
@@ -14,7 +14,7 @@ export function AcvPreview({ view }: { view: AcvView }) {
 
   return (
     <div className={w.stack}>
-      <Note>This is a preview of the uploaded telemetry, not a prediction. The ranking of cars appears here once the model is added.</Note>
+      <Note>Recorded telemetry for each car. The car most likely to be leaking is listed under Prediction; the full ranking is in acv_predictions.csv.</Note>
       <div className={w.fieldRow}>
         <Field label="Train">{view.trainNumber ?? "—"}</Field>
         <Field label="From" mono>
@@ -87,7 +87,7 @@ export function AcvPreview({ view }: { view: AcvView }) {
           </span>
         </div>
       ) : (
-        <Note>This file uses a different parameter set without an indoor average temperature, so there is no chart.</Note>
+        <Note>This workbook has no indoor average temperature parameter, so temperature charts are not available.</Note>
       )}
     </div>
   );

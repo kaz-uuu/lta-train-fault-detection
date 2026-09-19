@@ -1,21 +1,24 @@
 import { Link } from "react-router-dom";
-import { Empty, Panel } from "../components/primitives";
+import { CodeChip, Empty, Panel } from "../components/primitives";
 import { fmtDateTime, fmtNum } from "../lib/format";
-import { useSubmission } from "./hooks";
+import type { SubsystemId } from "./api";
+import { useSubmission, useSubsystems } from "./hooks";
 import { RunTag } from "./parts";
 import w from "./workbench.module.css";
 
-const HAND_IN = [
-  ["Demo video", "Up to 3 minutes: choose a subsystem, upload a file, view the result and download it."],
-  ["predictions.zip", "Placed directly in the team folder, with one CSV per attempted subsystem and no subfolders."],
-  ["App", "This app's source, in the team folder's app/ directory."],
-  ["Optional", "A short write-up, and the development code and models per subsystem, under Optional_Items/."],
-] as const;
+/** What one row of each subsystem's predictions file stands for. */
+const ROW_MEANING: Record<SubsystemId, string> = {
+  door: "One row per door movement: when it started and ended, and whether it met abnormal resistance.",
+  acv: "One row per workbook: every car in the train, from most to least likely to be leaking refrigerant, separated by |.",
+  rail: "One row per recording: Normal, or corrugation on Side I or Side II.",
+  shm: "One row per recording: the estimated cumulative fatigue damage.",
+};
 
-export function SubmissionView() {
+export function PredictionsView() {
   const { data: sub, error } = useSubmission();
+  const { data: subsystems } = useSubsystems();
 
-  if (error) return <Empty>The workbench service is not reachable. Start the API and reload.</Empty>;
+  if (error) return <Empty>Cannot reach the prediction service. Check that the API is running, then reload.</Empty>;
   if (!sub) return <Empty>Loading…</Empty>;
 
   const included = sub.items.filter((i) => i.included);
@@ -27,17 +30,17 @@ export function SubmissionView() {
           <nav className={w.crumbs} aria-label="Breadcrumb">
             <Link to="/">Overview</Link>
             <span className="faint">/</span>
-            <span>Submission</span>
+            <span>Predictions</span>
           </nav>
-          <h1 className={w.wsTitle}>Submission</h1>
+          <h1 className={w.wsTitle}>Predictions</h1>
           <p className={w.wsQuestion}>
-            The app puts the newest predictions of each subsystem into <span className="mono">{sub.zipName}</span>, one
-            CSV per subsystem at the top level, as the brief requires. A subsystem without predictions is left out.
+            The latest predictions from each subsystem. Download one subsystem's CSV, or all of them together in{" "}
+            <span className="mono">{sub.zipName}</span>. Subsystems without predictions are not included in the archive.
           </p>
         </div>
       </header>
 
-      <div className={w.submitGrid}>
+      <div className={w.predictionsGrid}>
         <Panel title="Subsystems" bodyClass={w.flush}>
           <div className={w.tableWrap}>
             <table className={w.table}>
@@ -46,7 +49,9 @@ export function SubmissionView() {
                   <th>Subsystem</th>
                   <th>Output file</th>
                   <th>Status</th>
-                  <th className={w.num}>Files</th>
+                  <th className={w.num} title="Files that passed validation, of files uploaded">
+                    Files
+                  </th>
                   <th className={w.num}>Rows</th>
                   <th>Updated</th>
                   <th />
@@ -77,7 +82,7 @@ export function SubmissionView() {
                         </a>
                       ) : (
                         <Link to={`/${item.subsystem}`} className="btn">
-                          Open
+                          Upload data
                         </Link>
                       )}
                     </td>
@@ -88,7 +93,7 @@ export function SubmissionView() {
           </div>
         </Panel>
 
-        <Panel title="Package" focal>
+        <Panel title="Archive" focal>
           <div className={w.stack}>
             <div className={w.zipFigure}>
               <span className="mono">{sub.zipName}</span>
@@ -107,7 +112,7 @@ export function SubmissionView() {
                 ))}
               </ul>
             ) : (
-              <p className="dim">No subsystem has predictions yet. Upload data on a subsystem with a ready model.</p>
+              <p className="dim">No predictions yet. Open a subsystem and upload data to generate them.</p>
             )}
             {sub.zipUrl ? (
               <a className="btn btn--primary" href={sub.zipUrl} download={sub.zipName}>
@@ -122,22 +127,29 @@ export function SubmissionView() {
         </Panel>
       </div>
 
-      <section className={w.section} aria-labelledby="hand-in">
-        <div className={w.sectionHead}>
-          <h2 id="hand-in" className={w.sectionTitle}>
-            What the team folder needs
-          </h2>
-          <span className="dim">From the brief, section 4</span>
-        </div>
-        <ol className={w.handIn}>
-          {HAND_IN.map(([title, text]) => (
-            <li key={title}>
-              <span className={w.handInTitle}>{title}</span>
-              <span className="dim">{text}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
+      {subsystems && (
+        <section className={w.section} aria-labelledby="formats">
+          <div className={w.sectionHead}>
+            <h2 id="formats" className={w.sectionTitle}>
+              File formats
+            </h2>
+            <span className="dim">UTF-8 CSV with a header row, one file per subsystem</span>
+          </div>
+          <ul className={w.formats}>
+            {subsystems.map((info) => (
+              <li key={info.id}>
+                <span className="mono">{info.outputFile}</span>
+                <span className={w.chips}>
+                  {info.outputColumns.map((c) => (
+                    <CodeChip key={c}>{c}</CodeChip>
+                  ))}
+                </span>
+                <span className="dim">{ROW_MEANING[info.id]}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }
