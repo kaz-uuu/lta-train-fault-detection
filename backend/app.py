@@ -17,6 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend import schemas as S
+from backend.assistant import create_assistant_router
 from backend.model_registry import Predictor
 from backend.workbench import Workbench, create_router
 
@@ -35,6 +36,7 @@ def create_app(models: Predictor | None = None) -> FastAPI:
     )
     app.state.bench = Workbench(models=models)
     app.include_router(create_router(app.state.bench))
+    app.include_router(create_assistant_router(app.state.bench))
 
     app.add_middleware(
         CORSMiddleware,
