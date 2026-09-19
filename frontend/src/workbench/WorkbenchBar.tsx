@@ -15,7 +15,7 @@ export function WorkbenchBar() {
     <header className={s.bar}>
       <Link to="/" className={s.brand}>
         <Glyph />
-        <span className={s.name}>Condition monitoring</span>
+        <span className={s.name}>Convoy</span>
       </Link>
 
       <nav className={s.tabs} aria-label="Main">

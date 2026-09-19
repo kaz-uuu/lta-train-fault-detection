@@ -57,7 +57,7 @@ export function DesignView() {
       <header className={w.hero}>
         <span className="micro">Design system</span>
         <h1 className={w.heroTitle}>
-          <Glyph size={40} /> Condition monitoring
+          <Glyph size={40} /> Convoy
         </h1>
         <p className={w.heroLede}>
           Near-black ground, white type, hairline rules and square corners; colour only where the data is abnormal,

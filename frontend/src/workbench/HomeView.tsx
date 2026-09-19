@@ -48,8 +48,8 @@ export function HomeView() {
   return (
     <div className={w.page}>
       <header className={w.hero}>
-        <span className="micro">Predictive maintenance</span>
-        <h1 className={w.heroTitle}>Train condition monitoring</h1>
+        <span className="micro">Train condition monitoring</span>
+        <h1 className={w.heroTitle}>Convoy</h1>
         <p className={w.heroLede}>
           Fault-detection models for four train subsystems: saloon doors, air-conditioning, rail and structure.
           Upload recorded data, review what each model finds, and export the predictions.

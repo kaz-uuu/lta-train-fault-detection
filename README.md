@@ -1,4 +1,4 @@
-# Train Condition Monitoring
+# Convoy — Train Condition Monitoring
 
 NEBULA X 2026, **Problem Statement 3 — Train Condition Monitoring**, LTA-mentored · 18–20 Sep 2026.
 

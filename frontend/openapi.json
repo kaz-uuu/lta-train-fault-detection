@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Train condition monitoring",
+    "title": "Convoy",
     "description": "Workbench API for NEBULA X PS3: upload a subsystem's data, see what the checks and the model make of it, and download the prediction files.",
     "version": "1.0.0"
   },

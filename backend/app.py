@@ -27,7 +27,7 @@ CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
 
 def create_app(models: Predictor | None = None) -> FastAPI:
     app = FastAPI(
-        title="Train condition monitoring",
+        title="Convoy",
         version="1.0.0",
         description=(
             "Upload a subsystem's recorded data, validate it, run the subsystem's fault-detection "
