@@ -1,0 +1,125 @@
+artifact_path: mlflow-artifacts:/dada1790a20442feb37f6621d35dc05b/models/m-31e53a3c9c7046c5b08769b93d16a93a/artifacts
+flavors:
+  python_function:
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.12.14
+    streamable: false
+is_signature_from_type_hint: false
+mlflow_version: 3.16.0
+model_id: m-31e53a3c9c7046c5b08769b93d16a93a
+model_size_bytes: 527995
+model_uuid: m-31e53a3c9c7046c5b08769b93d16a93a
+prompts: null
+run_id: 7fa95b7255c04d51ac2c2d0d8f6c7058
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "string", "name": "file_id", "required": true}, {"type": "double",
+    "name": "speed_kmh", "required": true}, {"type": "double", "name": "shock_I_ac_rms",
+    "required": true}, {"type": "double", "name": "shock_II_ac_rms", "required": true},
+    {"type": "double", "name": "vibration_I_ac_rms", "required": true}, {"type": "double",
+    "name": "vibration_II_ac_rms", "required": true}, {"type": "double", "name": "shock_I_peak",
+    "required": true}, {"type": "double", "name": "shock_II_peak", "required": true},
+    {"type": "double", "name": "vibration_I_peak", "required": true}, {"type": "double",
+    "name": "vibration_II_peak", "required": true}, {"type": "double", "name": "shock_I_max_rms",
+    "required": true}, {"type": "double", "name": "shock_II_max_rms", "required":
+    true}, {"type": "double", "name": "vibration_I_max_rms", "required": true}, {"type":
+    "double", "name": "vibration_II_max_rms", "required": true}, {"type": "double",
+    "name": "shock_I_crest", "required": true}, {"type": "double", "name": "shock_II_crest",
+    "required": true}, {"type": "double", "name": "vibration_I_crest", "required":
+    true}, {"type": "double", "name": "vibration_II_crest", "required": true}, {"type":
+    "double", "name": "shock_I_kurtosis", "required": true}, {"type": "double", "name":
+    "shock_II_kurtosis", "required": true}, {"type": "double", "name": "vibration_I_kurtosis",
+    "required": true}, {"type": "double", "name": "vibration_II_kurtosis", "required":
+    true}, {"type": "double", "name": "shock_I_skewness", "required": true}, {"type":
+    "double", "name": "shock_II_skewness", "required": true}, {"type": "double", "name":
+    "vibration_I_skewness", "required": true}, {"type": "double", "name": "vibration_II_skewness",
+    "required": true}, {"type": "double", "name": "shock_I_spectral_centroid", "required":
+    true}, {"type": "double", "name": "shock_II_spectral_centroid", "required": true},
+    {"type": "double", "name": "vibration_I_spectral_centroid", "required": true},
+    {"type": "double", "name": "vibration_II_spectral_centroid", "required": true},
+    {"type": "double", "name": "shock_I_f0_100_share", "required": true}, {"type":
+    "double", "name": "shock_II_f0_100_share", "required": true}, {"type": "double",
+    "name": "vibration_I_f0_100_share", "required": true}, {"type": "double", "name":
+    "vibration_II_f0_100_share", "required": true}, {"type": "double", "name": "shock_I_f100_500_share",
+    "required": true}, {"type": "double", "name": "shock_II_f100_500_share", "required":
+    true}, {"type": "double", "name": "vibration_I_f100_500_share", "required": true},
+    {"type": "double", "name": "vibration_II_f100_500_share", "required": true}, {"type":
+    "double", "name": "shock_I_f500_1500_share", "required": true}, {"type": "double",
+    "name": "shock_II_f500_1500_share", "required": true}, {"type": "double", "name":
+    "vibration_I_f500_1500_share", "required": true}, {"type": "double", "name": "vibration_II_f500_1500_share",
+    "required": true}, {"type": "double", "name": "shock_I_f1500_5000_share", "required":
+    true}, {"type": "double", "name": "shock_II_f1500_5000_share", "required": true},
+    {"type": "double", "name": "vibration_I_f1500_5000_share", "required": true},
+    {"type": "double", "name": "vibration_II_f1500_5000_share", "required": true},
+    {"type": "double", "name": "shock_I_w10_20mm_logpow", "required": false}, {"type":
+    "double", "name": "shock_II_w10_20mm_logpow", "required": false}, {"type": "double",
+    "name": "vibration_I_w10_20mm_logpow", "required": false}, {"type": "double",
+    "name": "vibration_II_w10_20mm_logpow", "required": false}, {"type": "double",
+    "name": "shock_I_w20_40mm_logpow", "required": false}, {"type": "double", "name":
+    "shock_II_w20_40mm_logpow", "required": false}, {"type": "double", "name": "vibration_I_w20_40mm_logpow",
+    "required": false}, {"type": "double", "name": "vibration_II_w20_40mm_logpow",
+    "required": false}, {"type": "double", "name": "shock_I_w40_80mm_logpow", "required":
+    false}, {"type": "double", "name": "shock_II_w40_80mm_logpow", "required": false},
+    {"type": "double", "name": "vibration_I_w40_80mm_logpow", "required": false},
+    {"type": "double", "name": "vibration_II_w40_80mm_logpow", "required": false},
+    {"type": "double", "name": "shock_I_w80_160mm_logpow", "required": false}, {"type":
+    "double", "name": "shock_II_w80_160mm_logpow", "required": false}, {"type": "double",
+    "name": "vibration_I_w80_160mm_logpow", "required": false}, {"type": "double",
+    "name": "vibration_II_w80_160mm_logpow", "required": false}, {"type": "double",
+    "name": "shock_I_w160_320mm_logpow", "required": false}, {"type": "double", "name":
+    "shock_II_w160_320mm_logpow", "required": false}, {"type": "double", "name": "vibration_I_w160_320mm_logpow",
+    "required": false}, {"type": "double", "name": "vibration_II_w160_320mm_logpow",
+    "required": false}, {"type": "double", "name": "shock_I_w320_640mm_logpow", "required":
+    false}, {"type": "double", "name": "shock_II_w320_640mm_logpow", "required": false},
+    {"type": "double", "name": "vibration_I_w320_640mm_logpow", "required": false},
+    {"type": "double", "name": "vibration_II_w320_640mm_logpow", "required": false},
+    {"type": "double", "name": "shock_contrast_log_rms_median", "required": true},
+    {"type": "double", "name": "vibration_contrast_log_rms_median", "required": true},
+    {"type": "double", "name": "shock_contrast_kurtosis_median", "required": true},
+    {"type": "double", "name": "vibration_contrast_kurtosis_median", "required": true},
+    {"type": "double", "name": "shock_contrast_w10_20mm_logpow_median", "required":
+    false}, {"type": "double", "name": "vibration_contrast_w10_20mm_logpow_median",
+    "required": false}, {"type": "double", "name": "shock_contrast_w20_40mm_logpow_median",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w20_40mm_logpow_median",
+    "required": false}, {"type": "double", "name": "shock_contrast_w40_80mm_logpow_median",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w40_80mm_logpow_median",
+    "required": false}, {"type": "double", "name": "shock_contrast_w80_160mm_logpow_median",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w80_160mm_logpow_median",
+    "required": false}, {"type": "double", "name": "shock_contrast_w160_320mm_logpow_median",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w160_320mm_logpow_median",
+    "required": false}, {"type": "double", "name": "shock_contrast_w320_640mm_logpow_median",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w320_640mm_logpow_median",
+    "required": false}, {"type": "double", "name": "shock_contrast_log_rms_pos_share",
+    "required": true}, {"type": "double", "name": "vibration_contrast_log_rms_pos_share",
+    "required": true}, {"type": "double", "name": "shock_contrast_kurtosis_pos_share",
+    "required": true}, {"type": "double", "name": "vibration_contrast_kurtosis_pos_share",
+    "required": true}, {"type": "double", "name": "shock_contrast_w10_20mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w10_20mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "shock_contrast_w20_40mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w20_40mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "shock_contrast_w40_80mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w40_80mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "shock_contrast_w80_160mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w80_160mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "shock_contrast_w160_320mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w160_320mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "shock_contrast_w320_640mm_logpow_pos_share",
+    "required": false}, {"type": "double", "name": "vibration_contrast_w320_640mm_logpow_pos_share",
+    "required": false}]'
+  outputs: '[{"type": "string", "name": "file_id", "required": true}, {"type": "string",
+    "name": "prediction", "required": true}, {"type": "double", "name": "p_normal",
+    "required": true}, {"type": "double", "name": "p_side_i", "required": true}, {"type":
+    "double", "name": "p_side_ii", "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-09-18 21:58:48.667358'

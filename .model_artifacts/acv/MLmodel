@@ -1,0 +1,37 @@
+artifact_path: mlflow-artifacts:/6452ca3b63954bd7867334d3066b53b4/models/m-f074ff457ad74e168b3bd3af931d7284/artifacts
+flavors:
+  python_function:
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.12.14
+    streamable: false
+is_signature_from_type_hint: false
+mlflow_version: 3.16.0
+model_id: m-f074ff457ad74e168b3bd3af931d7284
+model_size_bytes: 12992
+model_uuid: m-f074ff457ad74e168b3bd3af931d7284
+prompts: null
+run_id: 0149e22792f14f3395a6b0b64cf7f2e7
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "string", "name": "file_id", "required": true}, {"type": "string",
+    "name": "car", "required": true}, {"type": "double", "name": "minutes_with_indoor",
+    "required": true}, {"type": "double", "name": "peer_delta_cooling_mean", "required":
+    true}]'
+  outputs: '[{"type": "string", "name": "file_id", "required": true}, {"type": "string",
+    "name": "car", "required": true}, {"type": "double", "name": "score", "required":
+    true}, {"type": "boolean", "name": "has_evidence", "required": true}, {"type":
+    "long", "name": "rank", "required": true}, {"type": "long", "name": "imputed_features",
+    "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-09-18 18:06:21.628279'

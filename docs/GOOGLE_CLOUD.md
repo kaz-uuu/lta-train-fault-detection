@@ -20,10 +20,14 @@ This hosts the frontend, backend, preprocessing logic, and model inference on Go
 browser calls `/api` on the same origin. Runtime inference does not require DagsHub credentials or
 network access because the four reviewed champion versions are baked into the image.
 
-## One-time project setup
+## Deploy from Google Cloud Console
 
-Never put a Qwiklabs password, service-account key, or access token in this repository. Authenticate
-interactively with `gcloud auth login`, then select the assigned project.
+Open the assigned project in Google Cloud Console. Do not install or authenticate a local SDK and
+never put a Qwiklabs password, service-account key, or access token in this repository.
+
+Use the Console's **Activate Cloud Shell** button and run the following commands there. Cloud Shell
+is already authenticated to the temporary lab project; verify the project shown in its prompt before
+continuing.
 
 ```bash
 gcloud config set project PROJECT_ID
@@ -33,16 +37,17 @@ gcloud artifacts repositories create train-fault-detection --repository-format=d
 gcloud auth configure-docker us-central1-docker.pkg.dev
 ```
 
-## Build and deploy
+## Build and deploy from Cloud Shell
 
-First authenticate to DagsHub locally and snapshot the registered champions. `.model_artifacts` is
-Git-ignored but deliberately included in the Docker build context.
+The repository contains a reviewed, immutable snapshot of the four registered champions so Google
+Cloud Build needs no DagsHub credential. Clone the submitted commit, then build and deploy entirely
+inside the Google Cloud project:
 
 ```bash
-python scripts/download_champions.py
-docker build -t tfd-gcp:local .
-docker tag tfd-gcp:local us-central1-docker.pkg.dev/PROJECT_ID/train-fault-detection/app:COMMIT_SHA
-docker push us-central1-docker.pkg.dev/PROJECT_ID/train-fault-detection/app:COMMIT_SHA
+git clone https://github.com/kaz-uuu/lta-train-fault-detection.git
+cd lta-train-fault-detection
+git checkout COMMIT_SHA
+gcloud builds submit --tag us-central1-docker.pkg.dev/PROJECT_ID/train-fault-detection/app:COMMIT_SHA .
 gcloud run deploy train-fault-detection --image us-central1-docker.pkg.dev/PROJECT_ID/train-fault-detection/app:COMMIT_SHA --region us-central1 --platform managed --allow-unauthenticated --cpu 2 --memory 2Gi --timeout 300
 ```
 

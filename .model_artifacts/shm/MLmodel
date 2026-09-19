@@ -1,0 +1,60 @@
+artifact_path: mlflow-artifacts:/f35d275f2ae042ea9a4c50e239adc655/models/m-50443893e7f34c20b40993428a3f310c/artifacts
+flavors:
+  python_function:
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.12.3
+    streamable: false
+is_signature_from_type_hint: false
+mlflow_version: 3.16.1
+model_id: m-50443893e7f34c20b40993428a3f310c
+model_size_bytes: 24082
+model_uuid: m-50443893e7f34c20b40993428a3f310c
+prompts: null
+run_id: 4081106a00b44837bb37241cd311f294
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "string", "name": "file_id", "required": true}, {"type": "double",
+    "name": "mean", "required": true}, {"type": "double", "name": "std", "required":
+    true}, {"type": "double", "name": "peak_to_peak", "required": true}, {"type":
+    "double", "name": "skewness", "required": true}, {"type": "double", "name": "kurtosis",
+    "required": true}, {"type": "double", "name": "diff_rms", "required": true}, {"type":
+    "double", "name": "mean_crossing_rate", "required": true}, {"type": "double",
+    "name": "turning_point_rate", "required": true}, {"type": "double", "name": "spectral_centroid",
+    "required": true}, {"type": "double", "name": "range_p50", "required": true},
+    {"type": "double", "name": "range_p90", "required": true}, {"type": "double",
+    "name": "range_p99", "required": true}, {"type": "double", "name": "range_p999",
+    "required": true}, {"type": "double", "name": "cycle_count", "required": true},
+    {"type": "double", "name": "half_cycles", "required": true}, {"type": "double",
+    "name": "log10_dsum_m1", "required": true}, {"type": "double", "name": "log10_dsum_m2",
+    "required": true}, {"type": "double", "name": "log10_dsum_m3", "required": true},
+    {"type": "double", "name": "log10_dsum_m4", "required": true}, {"type": "double",
+    "name": "log10_dsum_m5", "required": true}, {"type": "double", "name": "log10_dsum_m6",
+    "required": true}, {"type": "double", "name": "log10_dsum_m7", "required": true},
+    {"type": "double", "name": "log10_dsum_m8", "required": true}, {"type": "double",
+    "name": "log10_dsum_m9", "required": true}, {"type": "double", "name": "log10_dsum_m10",
+    "required": true}, {"type": "double", "name": "log10_dsum_m11", "required": true},
+    {"type": "double", "name": "log10_dsum_m12", "required": true}, {"type": "double",
+    "name": "eq_range_m1", "required": true}, {"type": "double", "name": "eq_range_m2",
+    "required": true}, {"type": "double", "name": "eq_range_m3", "required": true},
+    {"type": "double", "name": "eq_range_m4", "required": true}, {"type": "double",
+    "name": "eq_range_m5", "required": true}, {"type": "double", "name": "eq_range_m6",
+    "required": true}, {"type": "double", "name": "eq_range_m7", "required": true},
+    {"type": "double", "name": "eq_range_m8", "required": true}, {"type": "double",
+    "name": "eq_range_m9", "required": true}, {"type": "double", "name": "eq_range_m10",
+    "required": true}, {"type": "double", "name": "eq_range_m11", "required": true},
+    {"type": "double", "name": "eq_range_m12", "required": true}]'
+  outputs: '[{"type": "string", "name": "file_id", "required": true}, {"type": "double",
+    "name": "prediction", "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-09-19 02:52:52.883282'

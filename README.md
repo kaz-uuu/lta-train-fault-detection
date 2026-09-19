@@ -77,8 +77,8 @@ docker build -t tfd-gcp:local .
 docker run --rm -p 8080:8080 tfd-gcp:local
 ```
 
-No DagsHub credential is placed in the production image: model aliases are resolved before the
-build and only immutable model artifacts are copied. See [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md)
+No DagsHub credential is placed in the production image: model aliases were resolved during model
+release and only the reviewed immutable model artifacts are copied. See [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md)
 for the complete deployment and verification procedure.
 
 ## Data

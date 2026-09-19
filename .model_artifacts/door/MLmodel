@@ -1,0 +1,44 @@
+artifact_path: mlflow-artifacts:/5a3d8d73519e4c96a62d49fff38fce62/models/m-36b303543a734609bb1ec7a43c791451/artifacts
+flavors:
+  python_function:
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.12.14
+    streamable: false
+is_signature_from_type_hint: false
+mlflow_version: 3.16.0
+model_id: m-36b303543a734609bb1ec7a43c791451
+model_size_bytes: 148490
+model_uuid: m-36b303543a734609bb1ec7a43c791451
+prompts: null
+run_id: d5c0e1d972b94c47b30e32419ef0f6e1
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "string", "name": "Datetime", "required": true}, {"type": "long",
+    "name": "Motor current(mA)", "required": true}, {"type": "long", "name": "Motor
+    Voltage(10mV)", "required": true}, {"type": "long", "name": "Motor electrodynamic
+    force", "required": true}, {"type": "long", "name": "Door opening time(.1s)",
+    "required": true}, {"type": "long", "name": "Door closing time(.1s)", "required":
+    true}, {"type": "long", "name": "Close command", "required": true}, {"type": "long",
+    "name": "Open command", "required": true}, {"type": "long", "name": "DCSR", "required":
+    true}, {"type": "long", "name": "DCSL", "required": true}, {"type": "long", "name":
+    "DLSR", "required": true}, {"type": "long", "name": "DLSL", "required": true},
+    {"type": "long", "name": "Door Opened", "required": true}, {"type": "long", "name":
+    "Door Locked", "required": true}, {"type": "long", "name": "Door is opening",
+    "required": true}, {"type": "long", "name": "Door is closing", "required": true},
+    {"type": "long", "name": "Door leaf position", "required": true}]'
+  outputs: '[{"type": "string", "name": "start_time", "required": true}, {"type":
+    "string", "name": "end_time", "required": true}, {"type": "string", "name": "prediction",
+    "required": true}, {"type": "double", "name": "score", "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-09-18 22:55:23.859842'
