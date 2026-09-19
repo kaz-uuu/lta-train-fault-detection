@@ -1,0 +1,24 @@
+.gcloudignore
+.git
+.git/**
+.github
+.venv
+venv
+train-fault-detection
+frontend/node_modules
+frontend/dist
+data
+notebooks
+mlruns
+mlartifacts
+*.db
+__pycache__
+*.pyc
+.env
+.env.*
+docs
+tests
+
+# These immutable MLflow champions are intentionally part of the Cloud build.
+!.model_artifacts/
+!.model_artifacts/**
