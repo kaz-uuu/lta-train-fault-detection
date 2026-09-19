@@ -29,7 +29,16 @@ export function Assistant() {
   useEffect(() => {
     if (open) {
       dialog.current?.showModal();
-      bench.subsystems().then(data => setRuns(data.filter(x => x.latestRun?.status === "ready").map(x => ({ id: x.latestRun!.id, name: x.name })))).catch(() => setError("Could not retrieve prediction runs. Check the backend connection."));
+      bench.subsystems().then(async data => {
+        const ready = data.filter(x => x.latestRun?.status === "ready");
+        const details = await Promise.all(ready.map(async subsystem => {
+          const run = await bench.run(subsystem.latestRun!.id);
+          const files = run.results.map(result => result.fileName).slice(0, 2).join(", ");
+          const remainder = run.results.length > 2 ? ` +${run.results.length - 2} more` : "";
+          return { id: run.id, name: `${subsystem.name} — ${files || "predictions ready"}${remainder}` };
+        }));
+        setRuns(details);
+      }).catch(() => setError("Could not retrieve prediction runs. Check the backend connection."));
     } else { dialog.current?.close(); }
   }, [open]);
   function close() { setOpen(false); launcher.current?.focus(); }
@@ -62,7 +71,7 @@ export function Assistant() {
           <button aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>Ask a question</button>
           <button aria-pressed={mode === "investigate"} onClick={() => setMode("investigate")}>Investigate a result</button>
         </div>
-        <label>Prediction context<select value={runId} onChange={e => setRunId(e.target.value)}><option value="">{runs.length ? "Choose a prediction run" : "Upload data first to investigate"}</option>{runs.map(run => <option key={run.id} value={run.id}>{run.name} · {run.id}</option>)}</select></label>
+        {mode === "investigate" && <label>Prediction to investigate<select value={runId} onChange={e => setRunId(e.target.value)}><option value="">{runs.length ? "Choose an uploaded result" : "Upload data first to investigate"}</option>{runs.map(run => <option key={run.id} value={run.id}>{run.name}</option>)}</select></label>}
         {mode === "investigate" && <label><input type="checkbox" checked={demo} onChange={e => setDemo(e.target.checked)} /> Include fictional history and schedule for demonstration</label>}
         {!items.length && <div className={s.empty}><h3>From a result to a reviewed next step.</h3><p>Retrieve evidence → assess the issue → propose an action → engineer review.</p><button onClick={() => { setMode("chat"); setText("How do I upload data and download predictions?"); }}>How does this app work?</button></div>}
         <div aria-live="polite">{items.map((item, index) => <section className={s.exchange} key={index}>
