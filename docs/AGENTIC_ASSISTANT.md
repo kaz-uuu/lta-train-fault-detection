@@ -1,8 +1,8 @@
-# Maintenance investigation assistant
+# Thomas maintenance assistant
 
-Branch: `agentic-ai`. Entry point: the temporary **Assistant** button at bottom right.
+Branch: `agentic-ai`. Entry point: the temporary **Ask Thomas** button at bottom right.
 The modal follows DESIGN.md: neutral surfaces, square corners, hairline borders,
-no decorative animation, and **GoA-R · Recommend only**. Its launcher can be moved
+no decorative animation, and plain-language engineer review messaging. Its launcher can be moved
 without changing the investigation feature.
 
 ## Two workflows
@@ -47,8 +47,8 @@ as an error; it does not silently substitute a successful AI response.
 
 Real uploaded model results and derived sensor summaries are available. Per-case
 confidence is currently not exposed, so it remains null. No verified train identity,
-history database, real schedule or approved operator manual is connected. Fictional
-history/schedule requires the demo checkbox and remains labelled. Prototype rules
+history database, real schedule or approved operator manual is connected. Missing
+history and schedules remain unavailable; fictional records are never generated. Prototype rules
 are not maintenance authorization; SHM has no approved operational damage threshold.
 
 Sessions, review records and conversations are process-local and reset on restart.
@@ -63,7 +63,16 @@ file); investigation does not claim exhaustive analysis of a large batch.
 `python -m pytest -q` covers chat without approval, prediction prerequisites, tool
 retrieval, fabricated citation rejection, review isolation and duplicate review.
 `cd frontend && npm run build` performs TypeScript checking and production build.
+`python scripts/test_assistant_ui.py http://127.0.0.1:8081` checks the real browser UI
+with mocked responses (requires Python Playwright and installed Chrome). It covers
+immediate message display, failed-response retry, retained request context, keyboard
+picker selection/dismissal, hidden chat context, and Enter/Shift+Enter behaviour.
 
 Manual rehearsal: upload SHM CSV, open Assistant, choose Investigate a result and
 the Structural health run, enter a request, inspect evidence, then approve/reject.
 Chat mode can explain uploads and downloads without an existing prediction.
+
+Sending immediately clears the composer and adds the user's message to the conversation.
+Failures keep that message visible and offer Retry with its original mode and result context.
+Enter sends, Shift+Enter inserts a newline. The result picker appears only during investigation,
+uses readable filenames, and supports arrow keys, Home/End, Enter/Space, Escape and outside-click dismissal.

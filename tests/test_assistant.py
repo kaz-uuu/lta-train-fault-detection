@@ -36,6 +36,17 @@ def test_chat_never_creates_recommendation(setup):
     assert data["provider"] == "offline"
 
 
+def test_old_demo_flag_cannot_invent_history(setup):
+    client, sid, run = setup
+    data = client.post(f"/api/assistant/sessions/{sid}/messages", json={
+        "text": "Review", "mode": "investigate", "run_id": run, "demo_context": True,
+    }).json()
+    sources = {item["id"]: item["data"] for item in data["trace"]}
+    assert sources["fault_history"]["available"] is False
+    assert sources["maintenance_schedule"]["available"] is False
+    assert "FICTIONAL" not in json.dumps(sources)
+
+
 def test_investigation_requires_prediction(setup):
     client, sid, _ = setup
     assert client.post(f"/api/assistant/sessions/{sid}/messages", json={"text": "Investigate", "mode": "investigate"}).status_code == 400
