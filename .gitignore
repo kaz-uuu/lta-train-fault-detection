@@ -16,6 +16,7 @@ data/
 mlruns/
 mlartifacts/
 *.db
+.model_artifacts/
 
 # Python
 __pycache__/

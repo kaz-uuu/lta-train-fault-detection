@@ -65,10 +65,13 @@ class DagsHubChampions:
         with self._lock:
             if subsystem in self._models:
                 return self._models[subsystem]
-            self._configure_tracking()
             import mlflow
             from mlflow import MlflowClient
             uri = self.uri(subsystem)
+            # Cloud/container deployments bake immutable champion artifacts into
+            # the image. They neither need DagsHub credentials nor its client.
+            if uri.startswith("models:/") or uri.startswith("runs:/") or uri.startswith("mlflow-artifacts:/"):
+                self._configure_tracking()
             log.info("Loading %s champion from %s", subsystem, uri)
             model = mlflow.pyfunc.load_model(uri)
             self._models[subsystem] = model

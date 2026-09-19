@@ -8,9 +8,13 @@ prediction files. OpenAPI at /docs.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend import schemas as S
 from backend.model_registry import Predictor
@@ -50,6 +54,21 @@ def create_app(models: Predictor | None = None) -> FastAPI:
     @app.get("/api/health", response_model=S.Health, tags=["system"])
     def health():
         return S.Health()
+
+    static_dir = Path(os.getenv("TFD_STATIC_DIR", "frontend/dist"))
+    if static_dir.is_dir():
+        assets = static_dir / "assets"
+        if assets.is_dir():
+            app.mount("/assets", StaticFiles(directory=assets), name="frontend-assets")
+
+        @app.get("/", include_in_schema=False)
+        @app.get("/{path:path}", include_in_schema=False)
+        def frontend(path: str = ""):
+            """Serve the built React application and its client-side routes."""
+            candidate = (static_dir / path).resolve()
+            if static_dir.resolve() in candidate.parents and candidate.is_file():
+                return FileResponse(candidate)
+            return FileResponse(static_dir / "index.html")
 
     return app
 
