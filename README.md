@@ -68,6 +68,10 @@ See [MODEL_SERVING.md](docs/MODEL_SERVING.md) for model contracts, configuration
 
 ## Google Cloud deployment
 
+The `agentic-ai` branch adds a maintenance assistant with general chat, tool-based
+evidence retrieval and engineer review. See [AGENTIC_ASSISTANT.md](docs/AGENTIC_ASSISTANT.md)
+for the offline demo, Vertex AI configuration and explicit prototype limitations.
+
 Download the current MLflow champions, build the same image used locally, and deploy it to Cloud
 Run through Artifact Registry:
 

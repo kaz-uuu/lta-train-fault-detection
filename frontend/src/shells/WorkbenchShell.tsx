@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { Assistant } from "../components/Assistant";
 import { WorkbenchBar } from "../workbench/WorkbenchBar";
 import s from "./WorkbenchShell.module.css";
 
@@ -10,6 +11,7 @@ export function WorkbenchShell() {
       <main className={s.main}>
         <Outlet />
       </main>
+      <Assistant />
     </div>
   );
 }

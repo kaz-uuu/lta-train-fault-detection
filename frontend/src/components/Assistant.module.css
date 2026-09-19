@@ -1,0 +1,24 @@
+.launcher { position: fixed; bottom: 24px; right: 24px; z-index: 20; padding: 12px 20px; background: var(--bone); color: var(--on-bone); border: 1px solid var(--line-strong); }
+.panel { position: fixed; inset: 16px 16px 16px auto; margin: 0; width: min(650px, calc(100vw - 32px)); height: calc(100dvh - 32px); max-height: none; padding: 0; background: var(--surface-1); color: var(--text); border: 1px solid var(--line-strong); }
+.panel[open] { display: flex; flex-direction: column; }
+.panel::backdrop { background: rgb(0 0 0 / 55%); }
+.header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.header h2 { font-size: 20px; margin: 8px 0 0; }
+.body { flex: 1; min-height: 0; overflow-y: auto; padding: 24px; }
+.panel small { color: var(--text-2); font-size: 11px; }
+.panel p { line-height: 1.6; margin: 12px 0; }
+.panel button { cursor: pointer; padding: 10px 12px; border: 1px solid var(--line-strong); color: var(--text); background: var(--surface-2); }
+.panel button:hover, .panel button[aria-pressed=true] { background: var(--surface-hover); border-color: var(--text); }
+.panel button:disabled { opacity: .45; cursor: not-allowed; }
+.panel label { display: block; margin: 12px 0; color: var(--text-2); }
+.panel select, .panel textarea, .panel input:not([type=checkbox]) { display: block; width: 100%; margin-top: 8px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--line-strong); font: inherit; }
+.panel textarea { resize: vertical; min-height: 64px; max-height: 150px; }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.empty, .exchange { padding: 24px 0; border-bottom: 1px solid var(--line); }
+.answer { white-space: pre-wrap; }
+.recommendation { margin-top: 16px; padding: 16px; border: 1px solid var(--line-strong); }
+.recommendation li { margin: 8px 0; color: var(--text-2); }
+.panel details { margin: 12px 0; }
+.panel summary { cursor: pointer; }
+.panel pre { overflow: auto; max-height: 240px; font: 12px var(--font-mono); background: var(--bg); padding: 12px; }
+.composer { border-top: 1px solid var(--line); padding: 12px 24px 20px; }
