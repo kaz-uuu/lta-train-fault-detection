@@ -14,18 +14,20 @@ functional rule wins, because a misread alarm costs more than an off-brand pixel
 **Inspired by, not copied from.** No Anduril name, logo, wordmark or licensed font ships in this
 project.
 
+The tokens live in `frontend/src/styles/tokens.css`; the running app renders them at `/design`.
+
 ---
 
 ## 1. Principles
 
 | # | Principle | Consequence |
 |---|---|---|
-| 1 | **Monochrome by default.** | Black, white, olive greys. A calm screen means a calm fleet. |
-| 2 | **Two hues, both meaningful.** | Red is the vehicle telling you. Chartreuse is us telling you — earlier. Nothing else is coloured. |
+| 1 | **Monochrome by default.** | Black, white, olive greys. A calm screen means nothing needs attention. |
+| 2 | **Two hues, both meaningful.** | Red marks what a model calls abnormal. Chartreuse is held for a warning that comes before a fault. Nothing else is coloured. |
 | 3 | **Never colour alone.** | Every state has a shape and a label treatment, so it reads in greyscale, on a washed-out projector, and for colour-blind operators. |
 | 4 | **Engineered, not decorated.** | Hairlines, square corners, labelled values. No shadows, gradients, glows or rounded cards. |
-| 5 | **Overview first, detail on demand.** | Four levels (§6). Each answers one question. |
-| 6 | **The machine recommends; a person decides.** | Every recommendation shows the rule that fired and `GoA-R · RECOMMEND ONLY`. |
+| 5 | **Overview first, detail on demand.** | Three screens (§6). Each answers one question. |
+| 6 | **The machine recommends; a person decides.** | The maintenance assistant labels itself `GoA-R · Recommend only`, cites the evidence it retrieved, and records an engineer's approval or rejection; nothing it says is acted on automatically. |
 | 7 | **Data is set in a face that can't be misread.** | IDs, values and times use a mono built to separate 0/O and 1/l/I. The UI sans can't be trusted with that. |
 
 ---
@@ -38,9 +40,8 @@ project.
 | **Corners** | 0 px radius, everywhere. |
 | **Structure** | 1 px hairlines divide the screen. Panels are regions between rules, not floating cards. |
 | **Labels** | Every value sits under a micro label — 11 px, weight 500, uppercase, +0.04em. Spec-sheet pairs. |
-| **Large numerals** | Tight tracking (−0.04em) at display sizes. The lead-time readout is the loudest thing on screen. |
-| **Registration marks** | Small L-shaped corner ticks frame the one focal panel per view (the L3 trend). Technical-drawing reference; never on more than one element. |
-| **Schematics** | Train cars and bogies are drawn as 1 px orthographic outlines, not filled boxes. |
+| **Large numerals** | Tight tracking (−0.04em) at display sizes. The page title and tile values are the loudest things on screen. |
+| **Registration marks** | Small L-shaped corner ticks frame the panel the user is working in: the upload panel, the selected file or door movement, and the prediction package. A technical-drawing reference. |
 | **Grid** | A faint line grid appears on charts only. |
 | **Imagery** | None. Line drawings and data only. |
 | **Motion** | None decorative (§7). |
@@ -81,7 +82,7 @@ Hover, selection and focus use **luminance, not hue** — a lighter surface and 
 
 **Two hues, kept apart.** Red marks what the model calls abnormal. Chartreuse is reserved for a
 warning that arrives *before* a fault, which no subsystem produces yet, so today it appears only
-on this page. That is why the source's accent colour is spent here and nowhere else.
+on the `/design` page. That is why the source's accent colour is spent here and nowhere else.
 
 Every shape is drawn with its fill **and** a 1 px outline in its ink colour. On the dark ground
 the fill carries it; on the bone ground a chartreuse fill is nearly invisible, so the olive outline
@@ -109,10 +110,10 @@ every shape meets 3:1. `python scripts/check_contrast.py` reads
 
 | Role | Stack | Why |
 |---|---|---|
-| UI, headings, readouts | `"Helvetica Now Display", "Helvetica Neue", Helvetica, "Geist", Arial, sans-serif` | The source face is Helvetica Now Display, which is commercial and not bundled. macOS ships Helvetica Neue, the closest free match; Geist (bundled, OFL) covers machines without it. |
-| IDs, values, timestamps | `"Atkinson Hyperlegible Mono"` (bundled) | Helvetica cannot separate 1/l/I. Asset codes like `G0` and `GO` must never be ambiguous — the BJTU-RAO archive ships exactly that typo. |
+| UI, headings, readouts | `"Helvetica Now Display", "Helvetica Neue", Helvetica, "Geist Variable", Arial, sans-serif` | The source face is Helvetica Now Display, which is commercial and not bundled. macOS ships Helvetica Neue, the closest free match; Geist (bundled, OFL) covers machines without it. |
+| IDs, values, timestamps | `"Atkinson Hyperlegible Mono Variable", ui-monospace, "SF Mono", Menlo, monospace` (bundled) | Helvetica cannot separate 1/l/I or 0/O, and codes such as `G0` and `GO` must never be ambiguous. |
 
-Bundled faces are self-hosted via `@fontsource`; the demo runs offline.
+Bundled faces are self-hosted via `@fontsource-variable`; the app needs no font CDN.
 
 | Token | Size / weight / tracking | Use |
 |---|---|---|
@@ -130,6 +131,7 @@ Bundled faces are self-hosted via `@fontsource`; the demo runs offline.
 ---
 
 ## 6. The app
+
 The PS3 brief scores one app: a non-technical user picks a subsystem, uploads a data file, sees the
 result and downloads it. The workbench is that app, and it is the home page.
 
@@ -138,6 +140,7 @@ result and downloads it. The workbench is that app, and it is the home page.
 | `/` | Where do I start? | Three steps, one card per subsystem with model and result state, submission status |
 | `/door`, `/acv`, `/rail`, `/shm` | What does my file say? | 1 Upload · 2 Results · 3 Download, with *How it works* beside the upload |
 | `/submission` | What goes in `predictions.zip`? | Newest predictions per subsystem, the package, the hand-in list |
+| `/design` | What are the rules? | The tokens, state marks and workbench parts, rendered live |
 
 - **The steps are numbered on screen** (`1 · Upload`, `2 · Results`, `3 · Download`) because the
   demo video follows them in that order.
@@ -146,15 +149,20 @@ result and downloads it. The workbench is that app, and it is the home page.
   another subsystem is refused with a pointer to the right one.
 - **Only abnormal results carry state colour.** An Abnormal resistance movement is a red square;
   a Normal one has no mark.
-- **Every label is explained with the number the model used.** For a door movement, that is the
-  current in the model's window against the threshold, drawn over the typical Normal and Abnormal
-  profiles from Train.
+- **Every label should be explained with the number the model used.** For a door movement, the
+  detail view is built to show the current in the model's window against the threshold, drawn over
+  the typical Normal and Abnormal profiles from Train. The served Door champion does not pass those
+  numbers through yet ([MODEL_SERVING.md](MODEL_SERVING.md)), so the view shows the model's window
+  over this movement's profile, and its raw current and position, without the numbers.
 - **A subsystem without a model says so.** It shows a dashed *Model pending* tag, still checks and
-  previews files, and marks every preview *not a prediction*. It is left out of the package.
+  previews files, and is left out of the package. All four subsystems have a registered model, so
+  this state appears only if one is not configured.
 - **Download buttons name the file they save** (*Download door_predictions.csv*) and stay visible
   but disabled, with the reason, until there is something to save.
 - **Runs live in the API's memory.** A restart clears them, and the page says so if it asks for a
   run the server no longer has.
+- **The Assistant button** at the bottom right of every page opens the maintenance assistant
+  ([AGENTIC_ASSISTANT.md](AGENTIC_ASSISTANT.md)).
 
 ## 7. Space, shape, motion
 
@@ -177,18 +185,20 @@ result and downloads it. The workbench is that app, and it is the home page.
 | `ModelTag`, `RunTag` | Model ready or pending; predictions ready, checked, failed or empty |
 | `Tiles` | Headline counts between hairlines |
 | `CycleStrip` | Door: one cell per movement in log order, abnormal cells red |
-| `CycleDetail` | Door: the reason sentence, the profile against typical profiles with the model's window, raw current and position |
+| `CycleDetail` | Door: the reason sentence, the profile with the model's window, raw current and position |
 | `FileResults` | Batch subsystems: file table and the selected file's checks and preview |
+| `Assistant` | The maintenance assistant's launcher and panel |
 
-Every component renders at `/design` in the running app.
+`/design` renders the tags, check list and tiles alongside the tokens and state marks.
 
 ---
 
 ## 9. Copy
 
 - Timestamps 24-hour, `2026-09-18 14:03:22`, in the data's own clock.
-- Durations `2h 43m`, `47m`, `3d 4h`.
-- Codes and values in mono: `T02-C1-APU`, `LPS`, `8.42 bar`.
+- Durations `3.76 s`, `47.5 s`, `12m 04s`.
+- File names, columns, codes and values in mono: `door_predictions.csv`, `ranked_cars`, `Side II`,
+  `592 mA`.
 - Sentence case, except micro labels.
 - Buttons say what happens, and name the file where there is one: **Choose a file**,
   **Download door_predictions.csv**, **Start over**.
@@ -196,4 +206,3 @@ Every component renders at `/design` in the running app.
   above the 249 mA threshold.*
 - No invented confidence. A model shows the value it compared and the threshold it used.
 - A preview without a model says so on screen: *not a prediction*.
-

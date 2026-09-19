@@ -1,9 +1,9 @@
 # Maintenance investigation assistant
 
-Branch: `agentic-ai`. Entry point: the temporary **Assistant** button at bottom right.
-The modal follows DESIGN.md: neutral surfaces, square corners, hairline borders,
-no decorative animation, and **GoA-R · Recommend only**. Its launcher can be moved
-without changing the investigation feature.
+Entry point: the **Assistant** button at the bottom right of every workbench page
+(`frontend/src/components/Assistant.tsx`); the API is `backend/assistant.py`, under
+`/api/assistant`. The panel follows [DESIGN.md](DESIGN.md): neutral surfaces, square
+corners, hairline borders, no decorative animation, and a **GoA-R · Recommend only** label.
 
 ## Two workflows
 
@@ -19,7 +19,7 @@ tool calls. Responses have request timeouts. Recommendations must cite retrieved
 sources and cannot bypass the separate review endpoint. Changed evidence invalidates
 an earlier recommendation. Nothing dispatches work or changes train operations.
 
-## Google Cloud configuration (deployment remains paused)
+## Vertex AI configuration
 
 The adapter uses Google's `google-genai` SDK with Vertex AI, through the Cloud Run
 service identity. In the Cloud Console, enable Vertex AI and grant the service
@@ -33,9 +33,9 @@ TFD_GEMINI_MODEL=gemini-2.5-flash
 ```
 
 Model availability, permissions, region and credits must be verified in the assigned
-project. No live Google call has been verified for this branch. No API key belongs in
-frontend code. Environment variables must be passed to the process/container; merely
-editing `.env` does not automatically load it into the production image.
+project. No live Google call has been verified. No API key belongs in frontend code.
+Environment variables must be passed to the process or container: nothing loads `.env`
+automatically. On Cloud Run, pass them to `gcloud run deploy` with `--set-env-vars`.
 
 Reference: https://googleapis.github.io/python-genai/
 
@@ -53,7 +53,8 @@ are not maintenance authorization; SHM has no approved operational damage thresh
 
 Sessions, review records and conversations are process-local and reset on restart.
 Session IDs are unguessable capability tokens, not a production identity system.
-Engineer names are self-declared. Before multi-user deployment add authenticated
+Engineer names are self-declared. At most 200 conversations are held at once; after that
+the API refuses new ones until it restarts. Before multi-user deployment add authenticated
 roles, persistent audit storage, retention/expiry, rate limiting and verified asset
 bindings. Sensor summaries are bounded (10 files, 40 door cycles/prediction rows per
 file); investigation does not claim exhaustive analysis of a large batch.
