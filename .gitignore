@@ -1,5 +1,8 @@
 # Data — never commit
 data/
+.env
+.env.*
+!.env.example
 *.csv
 *.parquet
 *.mat
