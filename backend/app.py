@@ -30,8 +30,8 @@ def create_app(models: Predictor | None = None) -> FastAPI:
         title="Train condition monitoring",
         version="1.0.0",
         description=(
-            "Workbench API for NEBULA X PS3: upload a subsystem's data, see what the checks and "
-            "the model make of it, and download the prediction files."
+            "Upload a subsystem's recorded data, validate it, run the subsystem's fault-detection "
+            "model and download the predictions."
         ),
     )
     app.state.bench = Workbench(models=models)

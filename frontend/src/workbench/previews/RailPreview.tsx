@@ -36,7 +36,7 @@ export function RailPreview({ view }: { view: RailView }) {
 
   return (
     <div className={w.stack}>
-      <Note>This is a preview of the uploaded recording, not a prediction. The Normal, Side I or Side II label appears here once the model is added.</Note>
+      <Note>Axle-box vibration across the train for this recording. The predicted label (Normal, Side I or Side II) is listed under Prediction.</Note>
       <Tiles
         items={[
           { label: "Train speed", value: `${fmtNum(view.speedKmh, 1)} km/h`, note: "from the wheel-speed pulses" },

@@ -65,10 +65,10 @@ export function DesignView() {
         </p>
         <div className={w.wsActions}>
           <button className="btn" onClick={toggle}>
-            {theme === "dark" ? "Projector theme" : "Console theme"}
+            {theme === "dark" ? "Light theme" : "Dark theme"}
           </button>
           <Link to="/" className="btn">
-            Back to the workbench
+            Back to overview
           </Link>
         </div>
       </header>
@@ -145,7 +145,7 @@ export function DesignView() {
               <Field label="Output file" mono>
                 door_predictions.csv
               </Field>
-              <Field label="Scored by">IoU-weighted F1</Field>
+              <Field label="Validation">IoU-weighted F1 1.000</Field>
               <Field label="Columns">
                 <span className={w.chips}>
                   <CodeChip>start_time</CodeChip>

@@ -38,7 +38,7 @@ export function Assistant() {
           return { id: run.id, name: `${subsystem.name} — ${files || "predictions ready"}${remainder}` };
         }));
         setRuns(details);
-      }).catch(() => setError("Could not retrieve prediction runs. Check the backend connection."));
+      }).catch(() => setError("Could not load predictions. Check the connection to the prediction service."));
     } else { dialog.current?.close(); }
   }, [open]);
   function close() { setOpen(false); launcher.current?.focus(); }
@@ -64,18 +64,18 @@ export function Assistant() {
   return <>
     <button className={s.launcher} ref={launcher} onClick={() => setOpen(true)}>Assistant ↗</button>
     <dialog className={s.panel} ref={dialog} onCancel={close} aria-labelledby="assistant-title">
-      <header className={s.header}><div><small>GoA-R · Recommend only</small><h2 id="assistant-title">Maintenance assistant</h2></div><button onClick={close} aria-label="Close assistant">×</button></header>
+      <header className={s.header}><div><small>Advisory · Recommendations only</small><h2 id="assistant-title">Maintenance assistant</h2></div><button onClick={close} aria-label="Close assistant">×</button></header>
       <div className={s.body}>
-        <p>Ask about the application or investigate a prediction. You review every recommended action.</p>
+        <p>Ask a question, or investigate a prediction for a recommended next step. Every recommendation needs an engineer's review before it is acted on.</p>
         <div className={s.controls}>
           <button aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>Ask a question</button>
           <button aria-pressed={mode === "investigate"} onClick={() => setMode("investigate")}>Investigate a result</button>
         </div>
-        {mode === "investigate" && <label>Prediction to investigate<select value={runId} onChange={e => setRunId(e.target.value)}><option value="">{runs.length ? "Choose an uploaded result" : "Upload data first to investigate"}</option>{runs.map(run => <option key={run.id} value={run.id}>{run.name}</option>)}</select></label>}
-        {mode === "investigate" && <label><input type="checkbox" checked={demo} onChange={e => setDemo(e.target.checked)} /> Include fictional history and schedule for demonstration</label>}
-        {!items.length && <div className={s.empty}><h3>From a result to a reviewed next step.</h3><p>Retrieve evidence → assess the issue → propose an action → engineer review.</p><button onClick={() => { setMode("chat"); setText("How do I upload data and download predictions?"); }}>How does this app work?</button></div>}
+        {mode === "investigate" && <label>Prediction to investigate<select value={runId} onChange={e => setRunId(e.target.value)}><option value="">{runs.length ? "Select a prediction" : "No predictions yet — upload data first"}</option>{runs.map(run => <option key={run.id} value={run.id}>{run.name}</option>)}</select></label>}
+        {mode === "investigate" && <label><input type="checkbox" checked={demo} onChange={e => setDemo(e.target.checked)} /> Include sample maintenance history and schedule (fictional)</label>}
+        {!items.length && <div className={s.empty}><h3>From a result to a reviewed next step.</h3><p>Retrieve evidence → assess the issue → propose an action → engineer review.</p><button onClick={() => { setMode("chat"); setText("How do I upload data and download predictions?"); }}>How do I get started?</button></div>}
         <div aria-live="polite">{items.map((item, index) => <section className={s.exchange} key={index}>
-          <small>You</small><p>{item.question}</p><small>{item.reply.provider === "vertex" ? "Gemini · Google Cloud" : "Offline guide · no AI generation"}</small><p className={s.answer}>{item.reply.text}</p>
+          <small>You</small><p>{item.question}</p><small>{item.reply.provider === "vertex" ? "Gemini · Google Cloud" : "Offline guide · no AI model connected"}</small><p className={s.answer}>{item.reply.text}</p>
           {item.reply.trace.length > 0 && <details><summary>Evidence retrieved · {item.reply.trace.length} sources</summary>{item.reply.trace.map((trace, i) => <details key={i}><summary>{trace.id.replaceAll("_", " ")}</summary><pre>{JSON.stringify(trace.data, null, 2)}</pre></details>)}</details>}
           {item.reply.recommendation && <div className={s.recommendation}>
             <small>Proposed urgency · {item.reply.recommendation.urgency.replaceAll("_", " ")}</small>
@@ -88,7 +88,7 @@ export function Assistant() {
               <label>Review note<textarea value={note} maxLength={1000} onChange={e => setNote(e.target.value)} /></label>
               <div className={s.controls}>{["approved", "rejected"].map(decision => <button key={decision} disabled={busy || !engineer.trim() || !note.trim()} onClick={() => review(item.reply.recommendation!.id, decision)}>{decision === "approved" ? "Approve recommendation" : "Reject recommendation"}</button>)}</div>
             </>}
-            <p><small>Records your review only. No work order, train control or schedule change is executed. Reviewer identity is self-declared in this prototype.</small></p>
+            <p><small>Records your decision only. No work order, train control or schedule change is issued. Reviewer identity is not verified.</small></p>
           </div>}
         </section>)}</div>
         {busy && <p role="status">Retrieving evidence and preparing the response…</p>}
@@ -96,7 +96,7 @@ export function Assistant() {
       </div>
       <form className={s.composer} onSubmit={e => { e.preventDefault(); void send(); }}>
         <label htmlFor="assistant-message">{mode === "chat" ? "Your question" : "Investigation request"}</label>
-        <textarea id="assistant-message" value={text} maxLength={2000} onChange={e => setText(e.target.value)} placeholder={mode === "chat" ? "Ask about this application or a general topic…" : "Review this result and recommend the next step…"} />
+        <textarea id="assistant-message" value={text} maxLength={2000} onChange={e => setText(e.target.value)} placeholder={mode === "chat" ? "Ask about a subsystem, a model or a data format…" : "Review this result and recommend the next step…"} />
         <div className={s.controls}><button disabled={busy || !text.trim() || (mode === "investigate" && !runId)} type="submit">{mode === "chat" ? "Send question" : "Start investigation"}</button><button type="button" disabled={busy} onClick={() => { setSid(""); setItems([]); setError(""); }}>New conversation</button></div>
       </form>
     </dialog>

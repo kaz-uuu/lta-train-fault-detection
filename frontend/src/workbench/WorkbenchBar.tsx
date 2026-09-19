@@ -18,7 +18,7 @@ export function WorkbenchBar() {
         <span className={s.name}>Condition monitoring</span>
       </Link>
 
-      <nav className={s.tabs} aria-label="Workbench">
+      <nav className={s.tabs} aria-label="Main">
         <NavLink to="/" end className={tab}>
           Overview
         </NavLink>
@@ -30,20 +30,17 @@ export function WorkbenchBar() {
           </NavLink>
         ))}
         <span className={s.rule} aria-hidden />
-        <NavLink to="/submission" className={tab}>
-          Submission
+        <NavLink to="/predictions" className={tab}>
+          Predictions
         </NavLink>
       </nav>
 
       <div className={s.right}>
-        <Link to="/design" className={s.link}>
-          Design
-        </Link>
         <button
           className="btn btn--icon"
           onClick={toggle}
-          aria-label={theme === "dark" ? "Switch to projector theme" : "Switch to console theme"}
-          title={theme === "dark" ? "Projector theme" : "Console theme"}
+          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          title={theme === "dark" ? "Light theme" : "Dark theme"}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
             <rect x="0.5" y="0.5" width="11" height="11" fill="none" stroke="currentColor" />

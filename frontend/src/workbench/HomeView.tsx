@@ -6,9 +6,9 @@ import { ModelTag, RunTag } from "./parts";
 import w from "./workbench.module.css";
 
 const STEPS = [
-  ["01", "Choose a subsystem", "Each one answers a different question about the train."],
-  ["02", "Upload its data", "Drag the file in. The app checks it before using it."],
-  ["03", "Review and download", "See the result on screen and save the predictions file."],
+  ["01", "Choose a subsystem", "Each model answers one question about the condition of the train."],
+  ["02", "Upload recorded data", "Files are validated for format, columns and sampling before any model runs."],
+  ["03", "Review and export", "Inspect each prediction against its signals, then download the results as CSV."],
 ] as const;
 
 function SubsystemCard({ info }: { info: SubsystemInfo }) {
@@ -21,10 +21,10 @@ function SubsystemCard({ info }: { info: SubsystemInfo }) {
       </div>
       <p className={w.cardQuestion}>{info.question}</p>
       <div className={w.cardFields}>
-        <Field label="You upload">
+        <Field label="Input">
           <span className="dim">{info.inputHint}</span>
         </Field>
-        <Field label="You get" mono>
+        <Field label="Output" mono>
           {info.outputFile}
         </Field>
       </div>
@@ -43,16 +43,16 @@ function SubsystemCard({ info }: { info: SubsystemInfo }) {
 
 export function HomeView() {
   const { data: subsystems, error } = useSubsystems();
-  const { data: submission } = useSubmission();
+  const { data: predictions } = useSubmission();
 
   return (
     <div className={w.page}>
       <header className={w.hero}>
-        <span className="micro">NEBULA X · Problem statement 3</span>
+        <span className="micro">Predictive maintenance</span>
         <h1 className={w.heroTitle}>Train condition monitoring</h1>
         <p className={w.heroLede}>
-          Choose a subsystem, upload its data, and download the predictions. Every file is checked before it is
-          used.
+          Fault-detection models for four train subsystems: saloon doors, air-conditioning, rail and structure.
+          Upload recorded data, review what each model finds, and export the predictions.
         </p>
       </header>
 
@@ -66,25 +66,23 @@ export function HomeView() {
         ))}
       </ol>
 
-      {error && <Empty>The workbench service is not reachable. Start the API and reload.</Empty>}
+      {error && <Empty>Cannot reach the prediction service. Check that the API is running, then reload.</Empty>}
       <section className={w.cards} aria-label="Subsystems">
         {subsystems?.map((info) => <SubsystemCard key={info.id} info={info} />)}
       </section>
 
-      {submission && (
-        <section className={w.submitStrip}>
-          <div className={w.submitText}>
-            <span className="micro">Submission</span>
-            <span className={w.submitTitle}>
-              <span className="mono">{submission.zipName}</span> · {submission.ready} of {submission.items.length}{" "}
+      {predictions && (
+        <section className={w.predictionsStrip}>
+          <div className={w.predictionsText}>
+            <span className="micro">Predictions</span>
+            <span className={w.predictionsTitle}>
+              <span className="mono">{predictions.zipName}</span> · {predictions.ready} of {predictions.items.length}{" "}
               subsystems ready
             </span>
-            <span className="dim">
-              The app packages the newest predictions of each subsystem into one file for hand-in.
-            </span>
+            <span className="dim">The latest predictions from every subsystem, in a single archive.</span>
           </div>
-          <Link to="/submission" className="btn">
-            Review submission
+          <Link to="/predictions" className="btn">
+            View predictions
           </Link>
         </section>
       )}

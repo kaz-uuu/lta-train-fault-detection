@@ -10,7 +10,7 @@ export function ModelTag({ status }: { status: "ready" | "pending" }) {
   return status === "ready" ? (
     <span className={`${w.tag} ${w.tagSolid}`}>Model ready</span>
   ) : (
-    <span className={`${w.tag} ${w.tagDashed}`}>Model pending</span>
+    <span className={`${w.tag} ${w.tagDashed}`}>No model deployed</span>
   );
 }
 
@@ -19,11 +19,11 @@ export function RunTag({ status }: { status: RunStatus | "none" }) {
     case "ready":
       return <span className={`${w.tag} ${w.tagSolid}`}>Predictions ready</span>;
     case "pending":
-      return <span className={`${w.tag} ${w.tagDashed}`}>Checked · model pending</span>;
+      return <span className={`${w.tag} ${w.tagDashed}`}>Validated · no model</span>;
     case "invalid":
-      return <StateLabel state="ACT">Check failed</StateLabel>;
+      return <StateLabel state="ACT">Validation failed</StateLabel>;
     default:
-      return <span className={`${w.tag} ${w.tagFaint}`}>No file yet</span>;
+      return <span className={`${w.tag} ${w.tagFaint}`}>No data</span>;
   }
 }
 
@@ -95,7 +95,7 @@ interface DropzoneProps {
   onFiles: (files: File[]) => void;
 }
 
-/** Drag and drop or browse. Files of the wrong type are still sent, so the checks can say why. */
+/** Drag and drop or browse. Files of the wrong type are still sent, so validation can say why. */
 export function Dropzone({ accepts, multiple, hint, onFiles }: DropzoneProps) {
   const [over, setOver] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
@@ -141,7 +141,7 @@ export function Dropzone({ accepts, multiple, hint, onFiles }: DropzoneProps) {
           </button>
         )}
       </div>
-      <span className="micro">Accepted: {accepts.join(", ")}</span>
+      <span className="micro">Accepts {accepts.join(", ")}</span>
       <input
         ref={picker}
         type="file"
@@ -169,8 +169,8 @@ export function Dropzone({ accepts, multiple, hint, onFiles }: DropzoneProps) {
 }
 
 const QUEUE_WORD: Record<QueueItem["state"], string> = {
-  waiting: "Waiting",
-  uploading: "Checking…",
+  waiting: "Queued",
+  uploading: "Validating…",
   done: "Done",
   error: "Upload failed",
 };
@@ -200,7 +200,7 @@ export function UploadQueue({ queue }: { queue: QueueItem[] }) {
               </span>
               <span className="faint mono">{fmtBytes(q.size)}</span>
               <span className={failed ? w.queueBad : "dim"}>
-                {q.state === "done" && q.result ? (q.result.ok ? "Checked" : "Check failed") : QUEUE_WORD[q.state]}
+                {q.state === "done" && q.result ? (q.result.ok ? "Passed" : "Failed validation") : QUEUE_WORD[q.state]}
               </span>
               {q.error && <span className={w.queueError}>{q.error}</span>}
             </li>

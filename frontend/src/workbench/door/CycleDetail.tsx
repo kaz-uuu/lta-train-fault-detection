@@ -5,14 +5,18 @@ import w from "../workbench.module.css";
 import { Verdict } from "./Verdict";
 
 function reason(cycle: DoorCycle, window: number[]): string {
-  if (cycle.windowCurrent == null || cycle.threshold == null) {
-    return "No model is loaded, so this movement has no label.";
-  }
   const part = `${window[0]}–${window[1]}% of the ${cycle.operation === "Open" ? "opening" : "closing"}`;
+  if (!cycle.prediction) return "No model output for this movement.";
+  if (cycle.windowCurrent == null || cycle.threshold == null) {
+    return (
+      `Labelled ${cycle.prediction} by the model, which reads the motor current over ${part} ` +
+      "(shaded below), where resistance shows most clearly."
+    );
+  }
   const cmp = cycle.windowCurrent > cycle.threshold ? "above" : "at or below";
   return (
     `Over ${part}, the motor drew ${fmtNum(cycle.windowCurrent)} mA on average, ${cmp} the ` +
-    `${fmtNum(cycle.threshold)} mA threshold learned from the labelled Train movements.`
+    `${fmtNum(cycle.threshold)} mA threshold learned from labelled training movements.`
   );
 }
 
@@ -56,7 +60,7 @@ export function CycleDetail({ cycle, view }: { cycle: DoorCycle; view: DoorView 
         xLabel="% of movement"
         yLabel="Motor current, mA"
         formatX={(v) => `${Math.round(v)}%`}
-        band={{ from: window[0], to: window[1] - 1, label: "window the model reads" }}
+        band={{ from: window[0], to: window[1] - 1, label: "model window" }}
         marks={marks}
       />
 
@@ -81,7 +85,7 @@ export function CycleDetail({ cycle, view }: { cycle: DoorCycle; view: DoorView 
         />
       </div>
       <p className="faint">
-        In the predictions file: start_time <span className="mono">{cycle.startNative}</span>, end_time{" "}
+        Exported to door_predictions.csv as start_time <span className="mono">{cycle.startNative}</span>, end_time{" "}
         <span className="mono">{cycle.endNative}</span>.
       </p>
     </div>

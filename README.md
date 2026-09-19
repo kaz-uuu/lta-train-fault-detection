@@ -14,23 +14,47 @@ Four independent subsystems, each with its own data and its own task:
 The deliverables are a demo video, `predictions.zip` and one app a non-technical user can work
 with, so the app is the spine of this repo: pick a subsystem, upload data, review, download.
 
+## Models
+
+Each subsystem has a training notebook that compares several architectures, selects one, and
+registers it in the team's DagsHub MLflow Model Registry under the alias `champion`. All four
+champions are version 1.
+
+| Subsystem | Registered model | Selected method | Held-out validation | Input the app sends |
+|---|---|---|---|---|
+| Door | `door_resistance_classifier` | Window-current rule: mean motor current over 20–40% of an opening or 35–65% of a closing, against a threshold fitted on Train | IoU-weighted F1 1.000 on the Train folds | Raw controller stream; the model finds the movements itself |
+| ACV | `acv_car_ranker` | Peer-temperature rule: how far each car's indoor temperature sits above the median of the other cars, averaged over cooling minutes | Rank-decay 0.979, leave-one-case-out over six cases | Two per-car features |
+| Rail | `rc_corrugation_classifier` | LightGBM classifier | Macro F1 0.784, pooled grouped CV | 101 features: speed plus amplitude, spectral, wavelength-band and side-contrast statistics |
+| SHM | `shm_damage_regressor` | Elastic Net on log damage | Score 0.977 (MAPE 2.3%), pooled four-fold CV | 39 rainflow, damage-sum and signal features |
+
+The notebooks' conclusion sections give the full comparison and the limits of each result.
+
 ## Architecture
 
-The React workbench uploads native PS3 files to FastAPI. The backend reproduces the exact
-training-time feature transformations and invokes the four `champion` artifacts in the team's
-DagsHub MLflow Model Registry. Models are loaded lazily and cached by the API process.
+The React workbench uploads native PS3 files to a FastAPI backend. The backend checks each file,
+rebuilds the exact features the champion was trained on (`src/tfd/ps3/model_inputs.py`), runs the
+champion through MLflow, and writes prediction CSVs in the brief's schema. Models load on first use
+and stay cached in the API process. See [MODEL_SERVING.md](docs/MODEL_SERVING.md).
 
-For judging, one Google Cloud Run service hosts the complete system: the production React build,
-FastAPI routes, feature pipelines, and immutable copies of all four MLflow champion artifacts.
-Keeping the browser and API on one origin removes CORS failure modes, while bundling the models
-makes inference independent of external registry availability during the live demo.
+For judging, one Google Cloud Run service hosts the whole system: the production React build, the
+API, the feature pipelines and immutable copies of the four champions (committed under
+`.model_artifacts/`). The browser and API share one origin, and inference needs no DagsHub access.
+See [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md).
 
-| Subsystem | Registered champion | Production input |
-|---|---|---|
-| Door | `door_resistance_classifier` | Raw controller stream |
-| ACV | `acv_car_ranker` | Per-car peer-temperature features |
-| Rail | `rc_corrugation_classifier` | 101 amplitude, spectral and side-contrast features |
-| SHM | `shm_damage_regressor` | 39 rainflow and signal features |
+## Repository layout
+
+```
+backend/            FastAPI app: workbench routes, model loading, assistant
+src/tfd/ps3/        PS3 loaders, serving feature pipelines, door rule, submission files
+src/tfd/            shm_wrangling.py (SHM training-table checks), viz.py (notebook plot style)
+frontend/           React + Vite workbench
+notebooks/          Door EDA, then preprocessing and training for each subsystem
+models/RailCorrugation/   Standalone Keras rail network (see its ReadMe)
+.model_artifacts/   Downloaded copies of the four registered champions, baked into the image
+scripts/            Champion download, OpenAPI export, colour-contrast check
+tests/              pytest suite
+docs/               The documents listed below
+```
 
 ## Setup
 
@@ -51,39 +75,64 @@ pip install -e . --no-deps --no-build-isolation
 Without conda: `pip install -r requirements.txt && pip install -e .`, plus Node 20.19 or newer for
 the frontend.
 
-Authenticate once without putting a token in this repository:
+## Run locally
+
+Start the API (port 8000) and the frontend dev server (port 5173) in separate terminals, then open
+http://localhost:5173. The dev server proxies `/api` to the API.
+
+```bash
+uvicorn backend.app:app --reload
+```
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+By default the API loads each champion from DagsHub, which needs a one-time login (the token is
+stored outside the repository):
 
 ```bash
 dagshub login
 ```
 
-Start the API and frontend in separate terminals:
+To run without DagsHub, point the API at the committed champion copies instead:
 
 ```bash
-uvicorn backend.app:app --reload
-cd frontend && npm install && npm run dev
+export TFD_MODEL_URI_DOOR=.model_artifacts/door TFD_MODEL_URI_ACV=.model_artifacts/acv TFD_MODEL_URI_RAIL=.model_artifacts/rail TFD_MODEL_URI_SHM=.model_artifacts/shm
 ```
 
-See [MODEL_SERVING.md](docs/MODEL_SERVING.md) for model contracts, configuration and verification.
+The API also serves a production build of the frontend from `frontend/dist` if one exists
+(`cd frontend && npm run build`), so the whole app runs at http://localhost:8000. The container
+image does the same; see [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md) to build and run it.
 
-## Google Cloud deployment
+## Notebooks
 
-The `agentic-ai` branch adds a maintenance assistant with general chat, tool-based
-evidence retrieval and engineer review. See [AGENTIC_ASSISTANT.md](docs/AGENTIC_ASSISTANT.md)
-for the offline demo, Vertex AI configuration and explicit prototype limitations.
+Each subsystem runs `*_preprocessing.ipynb` then `*_training.ipynb` (`rail_corrugation_*` for Rail);
+Door also has `door_eda.ipynb`. Preprocessing writes feature tables to `data/processed/<subsystem>/`,
+which is git-ignored (Rail's tables are the exception and are committed). Training reads them, logs
+every run to MLflow and registers the selected model.
 
-Download the current MLflow champions, build the same image used locally, and deploy it to Cloud
-Run through Artifact Registry:
+| Variable | Effect |
+|---|---|
+| `TFD_PS3_DIR` | Location of the PS3 datasets (the `PS3` folder or its `02_Datasets` folder) |
+| `TFD_PROCESSED_DIR` | Location of the processed tables, instead of `data/processed` |
+| `TFD_MLFLOW=local` | Log to `mlflow.db` and `mlartifacts/` in the repo instead of DagsHub |
+
+## Tests
 
 ```bash
-python scripts/download_champions.py
-docker build -t tfd-gcp:local .
-docker run --rm -p 8080:8080 tfd-gcp:local
+python -m pytest -q
 ```
 
-No DagsHub credential is placed in the production image: model aliases were resolved during model
-release and only the reviewed immutable model artifacts are copied. See [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md)
-for the complete deployment and verification procedure.
+The suite uses a stub model, so it needs neither DagsHub nor the champion artifacts. Tests that
+read the PS3 data skip when it is absent.
+
+## Maintenance assistant
+
+An **Assistant** button opens a chat and investigation panel that retrieves evidence about an
+uploaded prediction run and records an engineer's approval or rejection. It only ever recommends.
+By default it runs offline without any AI model; Gemini on Vertex AI is optional. See
+[AGENTIC_ASSISTANT.md](docs/AGENTIC_ASSISTANT.md).
 
 ## Data
 
@@ -98,16 +147,8 @@ problem-statement/PS3/02_Datasets/{Door,ACV,Rail_Corrugation,SHM}
 
 | Doc | What's in it |
 |---|---|
-| [PLAN.md](docs/PLAN.md) | Build order and the 48-hour schedule |
-| [BRIEF.md](docs/BRIEF.md) | Technical plan — framing, model bake-off, transfer ladder, MLflow, risk register |
-| [DESIGN.md](docs/DESIGN.md) | Design language — the look, and what each colour is allowed to mean (on `frontend`) |
-| [SPEC.md](docs/SPEC.md) | Flat feature index — name and function |
-| [DATASETS.md](docs/DATASETS.md) | Ranked datasets with pros and cons, avoid-list, acquisition plan |
-| [EXPERIMENTS.md](docs/EXPERIMENTS.md) | Experiment matrix, factors and levels, MLflow tag schema |
-| [FEATURES.md](docs/FEATURES.md) | Scoped review of the scheduler endpoint and the decision engine |
-| [GLOSSARY.md](docs/GLOSSARY.md) | Every term, in plain language |
-| [MODEL_SERVING.md](docs/MODEL_SERVING.md) | DagsHub champion loading, feature contracts and smoke testing |
-| [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md) | Cloud Run architecture, deployment, rollback and judging proof |
-
-BRIEF, DATASETS, EXPERIMENTS, FEATURES and PLAN were written before the problem statement was
-released and still describe that earlier plan.
+| [MODEL_SERVING.md](docs/MODEL_SERVING.md) | How the API loads champions, the feature contracts, routes, configuration and checks |
+| [GOOGLE_CLOUD.md](docs/GOOGLE_CLOUD.md) | Cloud Run architecture, deployment and judging proof |
+| [AGENTIC_ASSISTANT.md](docs/AGENTIC_ASSISTANT.md) | The maintenance assistant: workflows, Vertex AI configuration, limits |
+| [DESIGN.md](docs/DESIGN.md) | Design language: the look, what each colour may mean, the app's screens |
+| [GLOSSARY.md](docs/GLOSSARY.md) | Terms used in the app, notebooks and docs, in plain language |

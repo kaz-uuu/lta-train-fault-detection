@@ -35,7 +35,7 @@ CATALOG: dict[str, dict] = {
         question="Is a saloon door meeting abnormal resistance when it opens or closes?",
         task="Finds every opening and closing in a continuous door-controller log and labels each one "
         "Normal or Abnormal resistance.",
-        input_hint="One continuous door-controller log in CSV format, such as Test.csv.",
+        input_hint="One continuous door-controller log (CSV) with motor current, door position and command signals.",
         accepts=[".csv"],
         multiple=False,
         labels=list(door.LABELS),
@@ -45,7 +45,7 @@ CATALOG: dict[str, dict] = {
         name="Air-conditioning",
         question="Which car in the train has a refrigerant leak?",
         task="Ranks every car from most to least likely to be leaking refrigerant.",
-        input_hint="One Excel workbook per case with telemetry for every car, such as acv_test_case.xlsx.",
+        input_hint="One Excel workbook per train, with air-conditioning telemetry for every car.",
         accepts=[".xlsx"],
         multiple=True,
         labels=[],
@@ -55,7 +55,7 @@ CATALOG: dict[str, dict] = {
         name="Rail corrugation",
         question="Is the rail under the train corrugated, and on which side?",
         task="Labels each one-second axle-box recording Normal, Side I or Side II.",
-        input_hint="One or more one-second axle-box recordings in CSV format, such as Test1.csv to Test68.csv.",
+        input_hint="One or more one-second axle-box vibration and shock recordings (CSV, 10 kHz).",
         accepts=[".csv"],
         multiple=True,
         labels=list(rail.LABELS),
@@ -63,9 +63,9 @@ CATALOG: dict[str, dict] = {
     ),
     "shm": dict(
         name="Structural health",
-        question="How much fatigue damage has the structure accumulated?",
-        task="Estimates the cumulative fatigue damage of each dynamic-stress recording.",
-        input_hint="One or more stress recordings in CSV format, such as test01.csv to test16.csv.",
+        question="How much fatigue damage has the monitored structure accumulated?",
+        task="Estimates the cumulative fatigue damage represented by each dynamic-stress recording.",
+        input_hint="One or more dynamic-stress recordings (single-column CSV, no header).",
         accepts=[".csv"],
         multiple=True,
         labels=[],
@@ -74,8 +74,8 @@ CATALOG: dict[str, dict] = {
 }
 
 PENDING_NOTE = (
-    "The model for this subsystem is not ready yet. Files can be uploaded and checked now; "
-    "predictions appear here once the model is added."
+    "No model is deployed for this subsystem. Files can still be uploaded and validated; "
+    "predictions become available once a model is deployed."
 )
 
 
@@ -108,7 +108,7 @@ class Workbench:
         spec = SPECS[subsystem]
         version = self.models.version(subsystem) if hasattr(self.models, "version") else "champion"
         return S.ModelCard(name=spec.registered_name, version=str(version), method=spec.method,
-                           trained_on="PS3 labelled Train data; served by DagsHub MLflow Model Registry.",
+                           trained_on="Labelled historical recordings. Served from the MLflow model registry.",
                            validation=spec.validation, parameters={})
 
     def ready(self, subsystem: str) -> bool:
@@ -122,7 +122,7 @@ class Workbench:
         ready = self.ready(subsystem)
         latest = self.runs.get(self.latest.get(subsystem, ""))
         if ready:
-            note = "DagsHub MLflow champion connected; loaded on the first prediction."
+            note = "Champion model from the MLflow registry, loaded on first use."
         else:
             note = PENDING_NOTE
         return S.SubsystemInfo(
@@ -176,7 +176,7 @@ class Workbench:
                 checks += more
             except Exception as exc:  # malformed input or unavailable model: report, don't crash
                 log.warning("could not process %s: %s", name, exc)
-                checks.append(_check("File processed", False, f"The file or model could not be processed: {exc}"))
+                checks.append(_check("Processing", False, f"The file could not be processed: {exc}"))
         result = S.FileResult(
             file_name=name,
             size_bytes=size,
@@ -224,19 +224,19 @@ class Workbench:
 
     def _describe(self, run: RunState, status: str, results: list[S.FileResult]) -> str:
         if status == "empty":
-            return "No file uploaded yet."
+            return "No data uploaded."
         if status == "invalid":
-            return f"{len(results)} file{'s' * (len(results) != 1)} uploaded, none passed the checks."
+            return f"{len(results)} file{'s' * (len(results) != 1)} uploaded, none passed validation."
         valid = [r for r in results if r.ok]
         if run.subsystem == "door":
             cycles = [c for r in valid if isinstance(r.view, S.DoorView) for c in r.view.cycles]
             abnormal = sum(c.prediction == "Abnormal resistance" for c in cycles)
             if status == "ready":
                 return f"{len(cycles)} door movements found, {abnormal} with abnormal resistance."
-            return f"{len(cycles)} door movements found. Labels need the model."
-        noun = "case" if run.subsystem == "acv" else "recording"
-        text = f"{len(valid)} {noun}{'s' * (len(valid) != 1)} checked"
-        return text + (" and predicted." if status == "ready" else ". Predictions need the model.")
+            return f"{len(cycles)} door movements found; no model is deployed to label them."
+        noun = "workbook" if run.subsystem == "acv" else "recording"
+        text = f"{len(valid)} {noun}{'s' * (len(valid) != 1)} validated"
+        return text + (" and predicted." if status == "ready" else "; no model is deployed.")
 
     def full(self, run: RunState) -> S.Run:
         return S.Run(**self.summary(run).model_dump(), results=list(run.results.values()))
@@ -256,11 +256,11 @@ class Workbench:
             status = summary.status if summary else "none"
             included = status == "ready"
             note = {
-                "none": "No file uploaded yet.",
-                "empty": "No file uploaded yet.",
-                "invalid": "The uploaded files did not pass the checks.",
-                "pending": "Files checked; the model is not ready, so this subsystem is left out.",
-                "ready": "Included.",
+                "none": "No data uploaded.",
+                "empty": "No data uploaded.",
+                "invalid": "Uploaded files failed validation.",
+                "pending": "Files validated; no model is deployed, so there are no predictions.",
+                "ready": f"Included in {submission.ZIP_NAME}.",
             }[status]
             items.append(S.SubmissionItem(
                 subsystem=subsystem,
@@ -371,7 +371,7 @@ class Workbench:
         checks.append(_check("30 s sampling", period == 30, f"Median step {period:g} s.", warn=True))
         has_indoor = all(acv.INDOOR in params for params in cars.values())
         checks.append(_check("Indoor temperature per car", has_indoor,
-                             None if has_indoor else "This file uses a different parameter set; the preview is limited.",
+                             None if has_indoor else "This workbook uses a different parameter set, so the preview is limited.",
                              warn=True))
         stride = max(1, math.ceil(len(case) / 480))
         summary = acv.cooling_summary(case)
@@ -401,7 +401,7 @@ class Workbench:
             cars=view_cars,
             ranked_cars=(ranked := self.models.predict("acv", acv_features(case, name)).sort_values("rank")["car"].astype(str).tolist()),
         )
-        checks.append(_check("DagsHub MLflow champion", True, f"Ranked {len(ranked)} cars."))
+        checks.append(_check("Model run", True, f"Ranked {len(ranked)} cars."))
         return checks, view, [{"file_id": name, "ranked_cars": "|".join(ranked)}], ranked[0] if ranked else None
 
     def _rail_file(self, path: Path, name: str):
@@ -432,7 +432,7 @@ class Workbench:
         )
         output = self.models.predict("rail", rail_features(frame, name)).iloc[0]
         prediction = str(output["prediction"])
-        checks.append(_check("DagsHub MLflow champion", True, f"Predicted {prediction}."))
+        checks.append(_check("Model run", True, f"Predicted {prediction}."))
         return checks, view, [{"file_id": name, "prediction": prediction}], prediction
 
     def _shm_file(self, path: Path, name: str):
@@ -455,7 +455,7 @@ class Workbench:
         )
         output = self.models.predict("shm", shm_features(values, name)).iloc[0]
         prediction = float(output["prediction"])
-        checks.append(_check("DagsHub MLflow champion", True, f"Predicted cumulative damage {prediction:.6g}."))
+        checks.append(_check("Model run", True, f"Predicted cumulative damage {prediction:.6g}."))
         return checks, view, [{"file_id": name, "prediction": prediction}], f"{prediction:.6g}"
 
 

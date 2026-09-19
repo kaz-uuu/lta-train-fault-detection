@@ -21,10 +21,10 @@ class ModelSpec:
 
 
 SPECS: dict[str, ModelSpec] = {
-    "door": ModelSpec("door_resistance_classifier", "IoU-weighted F1 1.000 on five held-out folds", "Window-current resistance rule selected against seven alternative architectures."),
-    "acv": ModelSpec("acv_car_ranker", "Mean held-out rank-decay 0.979 with leave-one-case-out validation", "Peer-temperature rule ranks every car within its workbook."),
-    "rail": ModelSpec("rc_corrugation_classifier", "Pooled grouped-CV macro F1 0.784", "LightGBM classifier using amplitude, spectral, wavelength and side-contrast features."),
-    "shm": ModelSpec("shm_damage_regressor", "Pooled four-fold score 0.977 (MAPE 0.023)", "Elastic Net regression on rainflow, range-distribution and signal features."),
+    "door": ModelSpec("door_resistance_classifier", "IoU-weighted F1 1.000 across five held-out folds", "Compares mean motor current over a fixed window of each movement with a threshold learned from labelled movements. Selected over seven alternative architectures."),
+    "acv": ModelSpec("acv_car_ranker", "Mean rank-decay score 0.979 under leave-one-case-out validation", "Ranks cars by how much warmer each runs than the other cars in the same train while cooling."),
+    "rail": ModelSpec("rc_corrugation_classifier", "Macro F1 0.784 under grouped cross-validation", "LightGBM classifier on amplitude, spectral, wavelength and side-contrast features."),
+    "shm": ModelSpec("shm_damage_regressor", "Mean absolute percentage error 0.023 under four-fold cross-validation", "Elastic Net regression on rainflow-cycle, stress-range distribution and signal features."),
 }
 
 
