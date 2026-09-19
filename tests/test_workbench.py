@@ -12,9 +12,37 @@ from tfd.ps3 import door, rail, submission
 HAS_DOOR = (door.door_dir() / "Train.csv").exists() and (door.door_dir() / "Test.csv").exists()
 
 
+class FakeChampions:
+    def configured(self, subsystem):
+        return True
+
+    def version(self, subsystem):
+        return "test"
+
+    def predict(self, subsystem, frame):
+        if subsystem == "door":
+            raw = frame.copy()
+            raw.insert(0, "time", door.parse_time(raw[door.TIME]))
+            cycles = door.cycles(raw)
+            return pd.DataFrame({
+                "start_time": door.format_time(cycles["start"]),
+                "end_time": door.format_time(cycles["end"]),
+                "prediction": [door.LABELS[0]] * len(cycles),
+                "score": [0.5] * len(cycles),
+            })
+        if subsystem == "acv":
+            ranked = frame.sort_values("peer_delta_cooling_mean", ascending=False).reset_index(drop=True)
+            return ranked[["file_id", "car"]].assign(score=range(len(ranked), 0, -1), has_evidence=True,
+                                                       rank=range(1, len(ranked) + 1), imputed_features=0)
+        if subsystem == "rail":
+            return pd.DataFrame({"file_id": frame["file_id"], "prediction": "Normal",
+                                 "p_normal": .8, "p_side_i": .1, "p_side_ii": .1})
+        return pd.DataFrame({"file_id": frame["file_id"], "prediction": .123})
+
+
 @pytest.fixture()
 def client():
-    return TestClient(create_app())
+    return TestClient(create_app(models=FakeChampions()))
 
 
 def new_run(client, subsystem):
@@ -47,16 +75,16 @@ def test_catalogue_lists_the_four_subsystems(client):
     assert all(i["status"] in ("ready", "pending") for i in items)
 
 
-def test_rail_file_is_checked_and_previewed_without_a_model(client):
+def test_rail_file_is_checked_previewed_and_predicted(client):
     run_id = new_run(client, "rail")
     result = upload(client, run_id, "Test1.csv", rail_csv())
-    assert result["ok"] and result["prediction"] is None
+    assert result["ok"] and result["prediction"] == "Normal"
     assert result["view"]["kind"] == "rail"
     assert len(result["view"]["channels"]) == 64
     assert result["view"]["speedKmh"] == pytest.approx(900 / 2 / 90 * np.pi * 0.85 * 3.6, rel=0.01)
     run = client.get(f"/api/ps3/runs/{run_id}").json()
-    assert run["status"] == "pending" and run["csvUrl"] is None
-    assert client.get(f"/api/ps3/runs/{run_id}/rail_predictions.csv").status_code == 400
+    assert run["status"] == "ready" and run["csvUrl"]
+    assert client.get(f"/api/ps3/runs/{run_id}/rail_predictions.csv").status_code == 200
 
 
 def test_shm_file_without_header_is_read_as_data(client):

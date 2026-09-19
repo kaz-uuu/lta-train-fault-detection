@@ -14,17 +14,18 @@ Four independent subsystems, each with its own data and its own task:
 The deliverables are a demo video, `predictions.zip` and one app a non-technical user can work
 with, so the app is the spine of this repo: pick a subsystem, upload data, review, download.
 
-## Branches
+## Architecture
 
-`main` carries the setup and the written docs. Work lives on its own branch and merges here when
-it is ready.
+The React workbench uploads native PS3 files to FastAPI. The backend reproduces the exact
+training-time feature transformations and invokes the four `champion` artifacts in the team's
+DagsHub MLflow Model Registry. Models are loaded lazily and cached by the API process.
 
-| Branch | Holds |
-|---|---|
-| `main` | Environment, packaging, `docs/` |
-| `backend` | Subsystem loaders and models (`src/tfd/ps3/`), the workbench API (`backend/`), tests |
-| `frontend` | The React app (`frontend/`) and the design language (`docs/DESIGN.md`) |
-| `eda` | Exploratory notebooks (`notebooks/`) |
+| Subsystem | Registered champion | Production input |
+|---|---|---|
+| Door | `door_resistance_classifier` | Raw controller stream |
+| ACV | `acv_car_ranker` | Per-car peer-temperature features |
+| Rail | `rc_corrugation_classifier` | 101 amplitude, spectral and side-contrast features |
+| SHM | `shm_damage_regressor` | 39 rainflow and signal features |
 
 ## Setup
 
@@ -43,7 +44,22 @@ pip install -e . --no-deps --no-build-isolation
 ```
 
 Without conda: `pip install -r requirements.txt && pip install -e .`, plus Node 20.19 or newer for
-the `frontend` branch.
+the frontend.
+
+Authenticate once without putting a token in this repository:
+
+```bash
+dagshub login
+```
+
+Start the API and frontend in separate terminals:
+
+```bash
+uvicorn backend.app:app --reload
+cd frontend && npm install && npm run dev
+```
+
+See [MODEL_SERVING.md](docs/MODEL_SERVING.md) for model contracts, configuration and verification.
 
 ## Data
 
@@ -66,6 +82,7 @@ problem-statement/PS3/02_Datasets/{Door,ACV,Rail_Corrugation,SHM}
 | [EXPERIMENTS.md](docs/EXPERIMENTS.md) | Experiment matrix, factors and levels, MLflow tag schema |
 | [FEATURES.md](docs/FEATURES.md) | Scoped review of the scheduler endpoint and the decision engine |
 | [GLOSSARY.md](docs/GLOSSARY.md) | Every term, in plain language |
+| [MODEL_SERVING.md](docs/MODEL_SERVING.md) | DagsHub champion loading, feature contracts and smoke testing |
 
 BRIEF, DATASETS, EXPERIMENTS, FEATURES and PLAN were written before the problem statement was
 released and still describe that earlier plan.

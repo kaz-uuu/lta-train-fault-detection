@@ -13,13 +13,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend import schemas as S
+from backend.model_registry import Predictor
 from backend.workbench import Workbench, create_router
 
 # the Vite dev server
 CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
 
 
-def create_app() -> FastAPI:
+def create_app(models: Predictor | None = None) -> FastAPI:
     app = FastAPI(
         title="Train condition monitoring",
         version="1.0.0",
@@ -28,7 +29,7 @@ def create_app() -> FastAPI:
             "the model make of it, and download the prediction files."
         ),
     )
-    app.state.bench = Workbench()
+    app.state.bench = Workbench(models=models)
     app.include_router(create_router(app.state.bench))
 
     app.add_middleware(

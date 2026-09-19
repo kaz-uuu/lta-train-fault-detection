@@ -22,8 +22,10 @@ from fastapi import APIRouter, HTTPException, UploadFile
 from fastapi.responses import Response
 
 from backend import schemas as S
+from backend.model_registry import DagsHubChampions, Predictor, SPECS
 from tfd.ps3 import acv, door, rail, shm, submission
-from tfd.ps3.door_model import WINDOWS, DoorBaseline
+from tfd.ps3.model_inputs import acv_features, rail_features, shm_features
+from tfd.ps3.door_model import WINDOWS
 
 log = logging.getLogger("tfd.workbench")
 
@@ -95,50 +97,22 @@ class RunState:
 
 
 class Workbench:
-    def __init__(self) -> None:
+    def __init__(self, models: Predictor | None = None) -> None:
         self.runs: dict[str, RunState] = {}
         self.latest: dict[str, str] = {}
-        self._door: DoorBaseline | None = None
-        self._door_error: str | None = None
+        self.models = models or DagsHubChampions()
 
     # -- models ---------------------------------------------------------------
 
-    def door_model(self) -> DoorBaseline | None:
-        """Fit the Door baseline from Train on first use; None if the training data is missing."""
-        if self._door is None and self._door_error is None:
-            try:
-                stream = door.load_stream(door.door_dir() / "Train.csv")
-                segments = door.load_segments(door.door_dir() / "Train_Segments_Answer.csv")
-                self._door = DoorBaseline.fit(stream, segments)
-            except (OSError, ValueError, KeyError) as exc:
-                self._door_error = f"Door training data unavailable: {exc}"
-                log.warning(self._door_error)
-        return self._door
-
     def model_card(self, subsystem: str) -> S.ModelCard | None:
-        if subsystem != "door" or (m := self.door_model()) is None:
-            return None
-        return S.ModelCard(
-            name=m.name,
-            version=m.version,
-            method=(
-                "Splits the log wherever recording pauses, then compares each cycle's mean motor current "
-                f"over the part of the stroke where resistance shows ({WINDOWS['Open'][0]}–{WINDOWS['Open'][1]}% "
-                f"of an opening, {WINDOWS['Close'][0]}–{WINDOWS['Close'][1]}% of a closing) with a threshold "
-                "learned from the labelled Train cycles."
-            ),
-            trained_on=f"Train.csv, {m.n_train} labelled cycles",
-            validation=f"Leave-one-out accuracy {m.loo_accuracy:.0%} on Train; Train cycle boundaries reproduced exactly.",
-            parameters={
-                "openThresholdMa": round(m.thresholds["Open"], 1),
-                "closeThresholdMa": round(m.thresholds["Close"], 1),
-                "openMarginMa": round(m.margins["Open"], 1),
-                "closeMarginMa": round(m.margins["Close"], 1),
-            },
-        )
+        spec = SPECS[subsystem]
+        version = self.models.version(subsystem) if hasattr(self.models, "version") else "champion"
+        return S.ModelCard(name=spec.registered_name, version=str(version), method=spec.method,
+                           trained_on="PS3 labelled Train data; served by DagsHub MLflow Model Registry.",
+                           validation=spec.validation, parameters={})
 
     def ready(self, subsystem: str) -> bool:
-        return subsystem == "door" and self.door_model() is not None
+        return self.models.configured(subsystem) if hasattr(self.models, "configured") else subsystem in SPECS
 
     # -- catalogue --------------------------------------------------------------
 
@@ -148,9 +122,9 @@ class Workbench:
         ready = self.ready(subsystem)
         latest = self.runs.get(self.latest.get(subsystem, ""))
         if ready:
-            note = "Baseline model trained on the labelled Train data."
+            note = "DagsHub MLflow champion connected; loaded on the first prediction."
         else:
-            note = self._door_error if subsystem == "door" and self._door_error else PENDING_NOTE
+            note = PENDING_NOTE
         return S.SubsystemInfo(
             id=subsystem,
             output_file=output_file,
@@ -200,9 +174,9 @@ class Workbench:
             try:
                 more, view, rows, prediction = inspect[run.subsystem](path, name)
                 checks += more
-            except Exception as exc:  # unreadable or malformed upload: report, don't crash
-                log.info("could not read %s: %s", name, exc)
-                checks.append(_check("File readable", False, f"The file could not be read: {exc}"))
+            except Exception as exc:  # malformed input or unavailable model: report, don't crash
+                log.warning("could not process %s: %s", name, exc)
+                checks.append(_check("File processed", False, f"The file or model could not be processed: {exc}"))
         result = S.FileResult(
             file_name=name,
             size_bytes=size,
@@ -340,9 +314,12 @@ class Workbench:
         found = f"{len(table)}, each {table['n_rows'].min()}–{table['n_rows'].max()} rows long." if len(table) else "None."
         checks.append(_check("Door movements found", len(table) > 0, found))
 
-        model = self.door_model()
-        predicted = model.predict(frame) if model else table.assign(window_current=np.nan, threshold=np.nan, prediction=None)
-        starts, ends = door.format_time(predicted["start"]), door.format_time(predicted["end"])
+        output = self.models.predict("door", frame[door.COLUMNS])
+        if len(output) != len(table):
+            raise ValueError(f"Door champion returned {len(output)} movements for {len(table)} detected movements.")
+        predicted = table.copy()
+        predicted["prediction"] = output["prediction"].to_numpy()
+        starts, ends = output["start_time"].astype(str), output["end_time"].astype(str)
         profiles = door.current_profiles(frame)
         by_cycle = frame.groupby(door.split_cycles(frame["time"]))
         cycles = []
@@ -357,16 +334,13 @@ class Workbench:
                 duration_s=(row["end"] - row["start"]).total_seconds(),
                 operation=row["operation"],
                 prediction=row["prediction"],
-                window_current=_finite(row["window_current"]),
-                threshold=_finite(row["threshold"]),
+                window_current=None,
+                threshold=None,
                 current=block[door.CURRENT].astype(float).tolist(),
                 position=block[door.POSITION].astype(float).tolist(),
                 profile=profiles.loc[c].round(1).tolist(),
             ))
-        references = [
-            S.DoorReference(operation=op, status=status, profile=profile)
-            for (op, status), profile in (model.references.items() if model else [])
-        ]
+        references = []
         view = S.DoorView(
             kind="door",
             rows=len(frame),
@@ -377,7 +351,7 @@ class Workbench:
             windows={op: list(w) for op, w in WINDOWS.items()},
             references=references,
         )
-        rows = [] if model is None else [
+        rows = [
             {"start_time": starts[c], "end_time": ends[c], "prediction": p}
             for c, p in predicted["prediction"].items()
         ]
@@ -425,9 +399,10 @@ class Workbench:
             train_number=str(train.iloc[0]) if len(train) else None,
             time=[t.to_pydatetime() for t in time.iloc[::stride] if not pd.isna(t)],
             cars=view_cars,
-            ranked_cars=None,
+            ranked_cars=(ranked := self.models.predict("acv", acv_features(case, name)).sort_values("rank")["car"].astype(str).tolist()),
         )
-        return checks, view, [], None
+        checks.append(_check("DagsHub MLflow champion", True, f"Ranked {len(ranked)} cars."))
+        return checks, view, [{"file_id": name, "ranked_cars": "|".join(ranked)}], ranked[0] if ranked else None
 
     def _rail_file(self, path: Path, name: str):
         frame = rail.load_file(path)
@@ -455,7 +430,10 @@ class Workbench:
             side_vibration={k: round(v, 4) for k, v in side["vibration"].items()},
             side_shock={k: round(v, 4) for k, v in side["shock"].items()},
         )
-        return checks, view, [], None
+        output = self.models.predict("rail", rail_features(frame, name)).iloc[0]
+        prediction = str(output["prediction"])
+        checks.append(_check("DagsHub MLflow champion", True, f"Predicted {prediction}."))
+        return checks, view, [{"file_id": name, "prediction": prediction}], prediction
 
     def _shm_file(self, path: Path, name: str):
         values = shm.load_file(path)
@@ -475,7 +453,10 @@ class Workbench:
             envelope_min=np.round(low, 3).tolist(),
             envelope_max=np.round(high, 3).tolist(),
         )
-        return checks, view, [], None
+        output = self.models.predict("shm", shm_features(values, name)).iloc[0]
+        prediction = float(output["prediction"])
+        checks.append(_check("DagsHub MLflow champion", True, f"Predicted cumulative damage {prediction:.6g}."))
+        return checks, view, [{"file_id": name, "prediction": prediction}], f"{prediction:.6g}"
 
 
 def _py(value) -> datetime | None:
