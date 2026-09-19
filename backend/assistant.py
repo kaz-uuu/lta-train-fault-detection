@@ -78,6 +78,17 @@ class VertexAgent:
         contents = [types.Content(role=h["role"], parts=[types.Part(text=h["text"])]) for h in history[-12:]]
         contents.append(types.Content(role="user", parts=[types.Part(text=f"Mode: {message.mode}\n{message.text}")]))
         retrieved = set()
+        if message.mode == "investigate":
+            # These sources are required by the safety contract, so retrieval must
+            # not depend on whether the model happens to request every tool on its
+            # first turn. This also makes the first investigation deterministic.
+            evidence = {}
+            for name in ("predictions", "sensor_readings", "maintenance_guidelines", "fault_history", "maintenance_schedule"):
+                evidence[name] = retrieve(name)
+                retrieved.add(name)
+            contents.append(types.Content(role="user", parts=[types.Part(
+                text="Read-only evidence retrieved by the application:\n" + json.dumps(evidence, default=str)
+            )]))
         with genai.Client(vertexai=True, project=project, location=os.getenv("GOOGLE_CLOUD_LOCATION", "global"),
                           http_options=types.HttpOptions(timeout=20000)) as client:
             for _ in range(5):
@@ -89,6 +100,8 @@ class VertexAgent:
                 if message.mode == "investigate" and {
                     "predictions", "sensor_readings", "maintenance_guidelines"
                 }.issubset(retrieved):
+                    config.pop("tools")
+                    config.pop("automatic_function_calling")
                     config.update(response_mime_type="application/json", response_schema=Recommendation)
                 response = client.models.generate_content(model=os.getenv("TFD_GEMINI_MODEL", "gemini-2.5-flash"), contents=contents,
                     config=types.GenerateContentConfig(**config))
@@ -209,8 +222,11 @@ def create_assistant_router(bench, agent=None):
                 try:
                     recommendation = Recommendation.model_validate_json(answer.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()).model_dump()
                     ids = {t["id"] for t in trace}
-                    if not {"predictions", "sensor_readings", "maintenance_guidelines"}.issubset(ids) or not set(recommendation["evidence_ids"]).issubset(ids):
+                    if not {"predictions", "sensor_readings", "maintenance_guidelines"}.issubset(ids):
                         raise ValueError("Unretrieved evidence")
+                    # Report only sources the application actually retrieved. Model
+                    # wording cannot add, rename or claim evidence that was not used.
+                    recommendation["evidence_ids"] = [t["id"] for t in trace]
                 except ValueError:
                     raise HTTPException(502, "The assistant returned an unsupported recommendation. Retry the investigation.")
                 recommendation["limitations"].append("Prototype guidance only; verify train identity, operator procedures and operational urgency with a qualified engineer.")
