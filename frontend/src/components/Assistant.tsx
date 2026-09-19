@@ -81,7 +81,7 @@ export function Assistant() {
     finally { inFlight.current = false; setBusy(false); }
   }
   return <>
-    <button className={s.launcher} ref={launcher} onClick={() => setOpen(true)}>Ask Thomas</button>
+    <button className={s.launcher} ref={launcher} onClick={() => setOpen(true)}>Ask Thomas ↗</button>
     <dialog className={s.panel} ref={dialog} onCancel={close} aria-labelledby="assistant-title">
       <header className={s.header}><div><small>AI-assisted maintenance guidance</small><h2 id="assistant-title">Thomas, maintenance assistant</h2><p>Recommendations require engineer review before action.</p></div><button onClick={close} aria-label="Close assistant">×</button></header>
       <div className={s.body}>

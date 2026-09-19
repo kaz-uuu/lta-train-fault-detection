@@ -25,7 +25,7 @@ def main():
             "id": "internal-test-run", "results": [{"fileName": "test01.csv"}],
         }))
         page.goto(sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8081")
-        page.get_by_role("button", name="Ask Thomas").click()
+        page.get_by_role("button", name="Ask Thomas ↗").click()
         dialog = page.get_by_role("dialog")
         expect(dialog.get_by_role("heading", name="Thomas, maintenance assistant")).to_be_visible()
         expect(dialog.get_by_text("Hi, I'm Thomas!", exact=False)).to_be_visible()
